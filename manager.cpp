@@ -24,6 +24,7 @@ void JournalManager::saveToFile(string filename)
 void JournalManager::loadFromFile(string filename)
 {
     std::ifstream file(filename);
+    std::cout << "loading\n";
     if (!file.is_open())
     {
         std::cout << "error opening the file load\n";
@@ -41,4 +42,20 @@ void JournalManager::loadFromFile(string filename)
     }
     file.close();
     std::cout << "LOading complete\n";
+}
+void JournalManager::showAll()
+{
+}
+void JournalManager::printAll() const
+{
+    std::cout << "printing\n";
+    for (const auto &entry : entries)
+    {
+        if (entries.empty())
+        {
+            std::cout << "There was no entries yet!\n";
+            continue;
+        }
+        std::cout << entry.serialize() << std::endl;
+    }
 }

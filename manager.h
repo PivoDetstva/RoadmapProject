@@ -15,4 +15,6 @@ public:
     void saveToFile(string filename);
     void addEntry(JournalEntry entry);
     void loadFromFile(string filename); // change later to boolean
+    void showAll();
+    void printAll() const;
 };

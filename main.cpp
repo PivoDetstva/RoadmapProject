@@ -8,39 +8,21 @@ enum enums
     add = 1,
     show = 2,
     sexit = 3,
+    menu = 9,
 };
-
-void printAll()
-{
-    std::cout << "printing\n";
-    std::ifstream file(filename, std::ios::app);
-    if (!file.is_open())
-    {
-        std::cout << "error opening the file print\n";
-        return;
-    }
-    string line;
-    while (std::getline(file, line))
-    {
-        if (line.empty())
-        {
-            std::cout << "Nothing on this line\n";
-            continue;
-        }
-        std::cout << line << std::endl;
-    }
-}
 
 int main()
 {
     JournalManager manager;
     manager.loadFromFile(filename);
 
+    std::cout << "Welcome to our Roadmap menu, you have 3 choices: \n"
+              << "1.Add Entry\n 2.Show all\n 3.Save and exit\n"
+              << "If you want to see this menu again press '9'\n";
+
     int switchinput;
     while (true)
     {
-        std::cout << "Welcome to our Roadmap menu, you have 3 choices: \n"
-                  << "1.Add Entry\n 2.Show all\n 3.Save and exit\n";
 
         if (!(std::cin >> switchinput))
         {
@@ -61,22 +43,29 @@ int main()
         case add:
         {
             string date, args, path;
-            std::cout << "Date: ";
-            std::cin >> date;
-            std::cout << "Args: ";
-            std::cin >> args;
-            std::cout << "Path: ";
-            std::cin >> path;
+
+            cin.ignore();
+
+            std::cout << "Make an entry! Write date, arguments and path, to divide it use commas.\n";
+            std::getline(std::cin, date, ',');
+            std::getline(std::cin, args, ',');
+            std::getline(std::cin, path);
 
             JournalEntry newEntry(date, args, path);
             manager.addEntry(newEntry);
 
-            std::cout << "Added new entry! Not to file yet\n";
+            std::cout << "Added new entry!\n";
             break;
         }
         case show:
         {
-            printAll();
+            manager.printAll();
+            break;
+        }
+        case menu:
+        {
+            std::cout << "1.Add Entry\n 2.Show all entries\n"
+                      << "3.Save and Exit\n";
             break;
         }
         }

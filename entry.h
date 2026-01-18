@@ -27,7 +27,7 @@ public:
 
     std::string serialize() const;
     void deserialize(std::string data);
-    std::string getDate();
+    std::string getDate() const;
     std::string getArgs();
     std::string getPath();
     void setDate(string d);

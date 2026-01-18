@@ -19,7 +19,7 @@ void JournalEntry::deserialize(string data)
     std::getline(iss, path, '|');
     std::cout << "Desearilation completed well" << endl;
 }
-string JournalEntry::getDate()
+string JournalEntry::getDate() const
 {
 
     return date;

@@ -1,5 +1,2 @@
-242321 | 2421 | gb
-242321  |  2421  |  gb
-242321  |  2421  |  gb
-242321   |   2421   |   gb
-11.01.25 |  Getting ready for a big moves |  wth is path
+11.01.25   |    Getting ready for a big moves   |    wth is path
+14.01.25  |  So this is the first entry I can't use commas cause it's going to make this a different arguent so the sentence will end here. Later the date will change. I will try to have this entry as a legacy one. The first and only when I didn't knew much. I hope I will become a ogrammer any time soon and find a decent job  |  /home/feetlover/C++/RoadmapProject/data.txt

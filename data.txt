@@ -1,2 +1,4 @@
-11.01.25   |    Getting ready for a big moves   |    wth is path
-14.01.25  |  So this is the first entry I can't use commas cause it's going to make this a different arguent so the sentence will end here. Later the date will change. I will try to have this entry as a legacy one. The first and only when I didn't knew much. I hope I will become a ogrammer any time soon and find a decent job  |  /home/feetlover/C++/RoadmapProject/data.txt
+2025-14-11  |  A phonebook app with regex  |  /home/feetlover/C++/regex.cpp
+2025-12-15 | A server app with poor stopwatch realization. More important part here is server. | /home/feetlover/C++/server.cpp
+2025-12-16 | A client part of the server. That can be able to work with localhost or terminal connect to the server port | /home/feetlover/C++/client.cpp
+2026-01-24 | A test for Razy. I think you will read this, so if you want to test methods you will see that path that was in file is working only for my laptop, I'll want you to add your own entry, enter path with any of your .cpp or .txt files and test "preview" method on your own. Ignore this path, this just for entry to be done. In future a path argument in entry will be optional | /home/feetlover/C++/RoadmapProject/entry.cpp

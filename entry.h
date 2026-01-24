@@ -14,6 +14,7 @@ private:
     std::string date;
     std::string args;
     std::string path;
+    std::string title;
 
 public:
     JournalEntry() {};
@@ -29,7 +30,7 @@ public:
     void deserialize(std::string data);
     std::string getDate() const;
     std::string getArgs();
-    std::string getPath();
+    std::string getPath() const;
     void setDate(string d);
     void setArgs(string a);
     void setPath(string p);

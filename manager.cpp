@@ -79,6 +79,7 @@ void JournalManager::searchByDate(string queryDate) const
         {
             std::cout << entry.serialize() << endl;
             found = true;
+            std::cout << "Entry found\n";
         }
     }
     if (!found)
@@ -107,7 +108,48 @@ bool JournalManager::isValidDate(const string &date)
 {
     if (date.length() != 10)
         return false;
-    if (date[4] != '-' || date[7] != '-')
-        return false;
-    return true;
+    if (date[4] == '-' && date[7] == '-')
+        return true;
+    return false;
+}
+bool JournalManager::isValidPath(string pathStr)
+{
+    return std::filesystem::exists(pathStr);
+}
+void JournalManager::showFromFile(int index) const
+{
+}
+void JournalManager::previewCode(int index) const
+{
+    if (index < 1 || index > entries.size())
+    {
+        std::cout << "Invalid index!\n";
+        return;
+    }
+
+    string path = entries[index - 1].getPath();
+    if (path.empty())
+    {
+        std::cout << "User haven't provide any file" << std::endl;
+        return;
+    }
+    if (!std::filesystem::exists(path))
+    {
+        std::cout << "Error: FIle wasn't found on " << path << "\n";
+        return;
+    }
+
+    std::ifstream codefile(path);
+    if (!codefile.is_open())
+    {
+        std::cout << "Error opening the file codefile\n";
+        return;
+    }
+    std::cout << "\n--- START OF CODE (" << path << ") ---\n";
+    string line;
+    while (std::getline(codefile, line))
+    {
+        std::cout << line << std::endl;
+    }
+    std::cout << "\n--- END OF CODE ---\n";
 }

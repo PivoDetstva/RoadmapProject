@@ -29,7 +29,7 @@ string JournalEntry::getArgs()
 
     return args;
 }
-string JournalEntry::getPath()
+string JournalEntry::getPath() const
 {
 
     return path;

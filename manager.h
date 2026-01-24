@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <filesystem>
 #include "entry.h"
 
 #pragma once
@@ -22,4 +23,7 @@ public:
     void printWIthIndex() const;
     string trim(const string &s);
     bool isValidDate(const string &date);
+    bool isValidPath(string pathStr);
+    void showFromFile(int index) const;
+    void previewCode(int index) const;
 };

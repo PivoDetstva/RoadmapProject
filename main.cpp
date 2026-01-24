@@ -2,6 +2,9 @@
 #include "manager.h"
 
 string filename = "data.txt";
+const string RED = "\033[31m";
+const string GREEN = "\033[32m";
+const string RESET = "\033[0m";
 
 enum enums
 {
@@ -10,6 +13,7 @@ enum enums
     sexit = 3,
     gofind = 4,
     dont = 5,
+    preview = 6,
     menu = 9,
 };
 
@@ -22,10 +26,12 @@ int main()
               << "1.Add Entry\n"
               << "2.Show all\n"
               << "3.Save and exit\n"
-              << "4.Search by date\n"
+              << "4.Search by date(not working for now, will be fixed in futue)\n"
               << "5.Delete an entry\n"
+              << "6.Preview code\n"
               << "If you want to see this menu again press '9'\n";
-
+    // I'll need to repeat this after every action made for better UI understanding, but in console
+    // it would be a mess, so better have this idea for
     int switchinput;
     while (true)
     {
@@ -53,26 +59,50 @@ int main()
             cin.ignore();
 
             std::cout << "Make an entry! Write date, arguments and path, to divide it use commas.\n";
-            // remake to a single argument later
-            std::getline(std::cin, date, ',');
+            while (true)
+            {
+                std::cout << "Let's start with a date: ";
+                std::getline(std::cin, date);
+                date = manager.trim(date);
+                if (manager.isValidDate(date) == false)
+                {
+                    std::cout << RED << "Invalid date format! Use YYYY-MM-DD" << RESET << "\n";
+                }
+                else
+                {
+                    std::cout << GREEN << "Date has been approved!" << RESET << "\n";
+                    break;
+                }
+            }
+            while (true)
+            {
+                std::cout << "Now tell what is entry all about: ";
+                std::getline(std::cin, args);
+                args = manager.trim(args);
+                if (args.empty())
+                {
+                    std::cout << RED << "You haven't provided any text :|" << RESET << "\n";
+                }
+                else
+                {
+                    break;
+                }
+            }
+            while (true)
+            {
 
-            if (!date.empty() && date[0] == ' ')
-            {
-                date.erase(0, 1);
+                std::cout << "And where does it lies: ";
+                std::getline(std::cin, path);
+                path = manager.trim(path);
+                if (manager.isValidPath(path) == false)
+                {
+                    std::cout << RED << "Invalid path!" << RESET << "\n";
+                }
+                else
+                {
+                    break;
+                }
             }
-            manager.trim(date);
-            manager.isValidDate(date);
-            std::getline(std::cin, args, ',');
-            if (!args.empty() && args[0] == ' ')
-            {
-                args.erase(0, 1);
-            }
-            std::getline(std::cin, path);
-            if (!path.empty() && path[0] == ' ')
-            {
-                path.erase(0, 1);
-            }
-
             JournalEntry newEntry(date, args, path);
             manager.addEntry(newEntry);
 
@@ -99,6 +129,7 @@ int main()
             cin.ignore();
             std::cout << "Enter a date of the entry: ";
             std::getline(std::cin, date);
+            date = manager.trim(date);
             if (!date.empty() && date[0] == ' ')
             {
                 date.erase(0, 1);
@@ -113,6 +144,15 @@ int main()
             manager.printWIthIndex();
             std::cin >> index;
             manager.deleteEntry(index);
+            break;
+        }
+        case preview:
+        {
+            int index;
+            std::cout << "Which entry code you want to see?";
+            manager.printWIthIndex();
+            std::cin >> index;
+            manager.previewCode(index);
             break;
         }
         }

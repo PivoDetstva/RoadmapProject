@@ -45,29 +45,30 @@ void JournalManager::loadFromFile(string filename)
 }
 void JournalManager::printWIthIndex() const
 {
+
     if (entries.empty())
     {
         std::cout << "Empty.\n";
         return;
     }
-    std::cout << "Index print";
-    for (size_t i = 0; i < entries.size(); ++i)
-    {
-        std::cout << "\n[" << i + 1 << "]" << entries[i].serialize() << std::endl;
-    }
-}
-void JournalManager::printAll() const
-{
-    if (entries.empty())
-    {
-        std::cout << "There was no entries yet!\n";
-        return;
-    }
-    std::cout << "printing\n";
-    for (const auto &entry : entries)
-    {
 
-        std::cout << entry.serialize() << std::endl;
+    std::vector<JournalEntry> sortedEntries = entries;
+    long codecount = std::count_if(entries.begin(), entries.end(), [](const JournalEntry &e)
+                                   { return e.getPath() != "none"; });
+
+    std::sort(sortedEntries.begin(), sortedEntries.end(), [](const JournalEntry &a, const JournalEntry &b)
+              { return a.getDate() < b.getDate(); });
+
+    std::cout << "Found " << sortedEntries.size() << " entries!\n"
+              << codecount << "of them contains code!";
+
+    for (size_t i = 0; i < sortedEntries.size(); ++i)
+    {
+        if (sortedEntries[i].getPath() != "none")
+        {
+            std::cout << " [Contains code]";
+        }
+        std::cout << "\n[" << i + 1 << "] " << sortedEntries[i].shortserialize();
     }
 }
 void JournalManager::searchByDate(string queryDate) const
@@ -75,7 +76,7 @@ void JournalManager::searchByDate(string queryDate) const
     bool found = false;
     for (const auto &entry : entries)
     {
-        if (entry.getDate() == queryDate)
+        if (entry.getDate().find(queryDate) != std::string::npos)
         {
             std::cout << entry.serialize() << endl;
             found = true;
@@ -116,8 +117,37 @@ bool JournalManager::isValidPath(string pathStr)
 {
     return std::filesystem::exists(pathStr);
 }
-void JournalManager::showFromFile(int index) const
+void JournalManager::searchByContent(string keyword) const
 {
+    bool found = false;
+
+    string lowerKeyword = keyword;
+
+    for (const auto &entry : entries)
+    {
+        string title = entry.getTitle();
+        string text = entry.getText();
+        auto it = std::search(
+            title.begin(), title.end(),
+            lowerKeyword.begin(), lowerKeyword.end(),
+            [](unsigned char ch1, unsigned char ch2)
+            {
+                return std::tolower(ch1) == std::tolower(ch2);
+            });
+        auto it2 = std::search(text.begin(), text.end(),
+                               lowerKeyword.begin(), lowerKeyword.end(),
+                               [](unsigned char ch1, unsigned char ch2)
+                               {
+                                   return std::tolower(ch1) == std::tolower(ch2);
+                               });
+        if (it != title.end() || it2 != text.end())
+        {
+            std::cout << "Found: " << entry.shortserialize() << "\n";
+            found = true;
+        }
+    }
+    if (!found)
+        std::cout << "Nothing found.\n";
 }
 void JournalManager::previewCode(int index) const
 {
@@ -151,5 +181,12 @@ void JournalManager::previewCode(int index) const
     {
         std::cout << line << std::endl;
     }
-    std::cout << "\n--- END OF CODE ---\n";
+    std::cout << "\n--- END OF CODE ---\    n";
+}
+void JournalManager::toLower(std::string &s)
+{
+    for (char &c : s)
+    {
+        c = std::tolower(static_cast<unsigned char>(c));
+    }
 }

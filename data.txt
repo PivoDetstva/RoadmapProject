@@ -1,4 +1,4 @@
-2025-14-11  |  A phonebook app with regex  |  /home/feetlover/C++/regex.cpp
-2025-12-15 | A server app with poor stopwatch realization. More important part here is server. | /home/feetlover/C++/server.cpp
-2025-12-16 | A client part of the server. That can be able to work with localhost or terminal connect to the server port | /home/feetlover/C++/client.cpp
-2026-01-24 | A test for Razy. I think you will read this, so if you want to test methods you will see that path that was in file is working only for my laptop, I'll want you to add your own entry, enter path with any of your .cpp or .txt files and test "preview" method on your own. Ignore this path, this just for entry to be done. In future a path argument in entry will be optional | /home/feetlover/C++/RoadmapProject/entry.cpp
+2026-01-26|Test entry|Testing text  |  /home/feetlover/C++/RoadmapProject/entry.h
+2026-26-01|Just testing!|Test about on how new path validation works|none
+2004-12-31|Test for sort|Sorting test|none
+2046-09-13|Sorting test|Testing test for bigger number|none

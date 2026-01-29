@@ -26,7 +26,7 @@ int main()
               << "1.Add Entry\n"
               << "2.Show all\n"
               << "3.Save and exit\n"
-              << "4.Search by date(not working for now, will be fixed in futue)\n"
+              << "4.Search an entry\n"
               << "5.Delete an entry\n"
               << "6.Preview code\n"
               << "If you want to see this menu again press '9'\n";
@@ -54,7 +54,7 @@ int main()
         {
         case add:
         {
-            string date, args, path;
+            string date, title, args, path;
 
             cin.ignore();
 
@@ -77,6 +77,20 @@ int main()
             while (true)
             {
                 std::cout << "Now tell what is entry all about: ";
+                std::getline(std::cin, title);
+                title = manager.trim(title);
+                if (title.empty())
+                {
+                    std::cout << RED << "You haven't provided any text :|" << RESET << "\n";
+                }
+                else
+                {
+                    break;
+                }
+            }
+            while (true)
+            {
+                std::cout << "And entry text: ";
                 std::getline(std::cin, args);
                 args = manager.trim(args);
                 if (args.empty())
@@ -91,9 +105,15 @@ int main()
             while (true)
             {
 
-                std::cout << "And where does it lies: ";
+                std::cout << "If you want to save the file enter his path, "
+                          << "If this is just text entry, enter 'none'\n";
                 std::getline(std::cin, path);
                 path = manager.trim(path);
+                if (path == "none")
+                {
+                    std::cout << "Text entry saved\n";
+                    break;
+                }
                 if (manager.isValidPath(path) == false)
                 {
                     std::cout << RED << "Invalid path!" << RESET << "\n";
@@ -103,15 +123,15 @@ int main()
                     break;
                 }
             }
-            JournalEntry newEntry(date, args, path);
+            JournalEntry newEntry(date, title, args, path);
             manager.addEntry(newEntry);
 
-            std::cout << "Added new entry!\n";
+            std::cout << GREEN << "Added new entry!" << RESET << "\n";
             break;
         }
         case show:
         {
-            manager.printAll();
+            manager.printWIthIndex();
             break;
         }
         case menu:
@@ -125,16 +145,27 @@ int main()
         }
         case gofind:
         {
-            string date;
+            string input;
             cin.ignore();
-            std::cout << "Enter a date of the entry: ";
-            std::getline(std::cin, date);
-            date = manager.trim(date);
-            if (!date.empty() && date[0] == ' ')
+            std::cout << "Enter a date or any word of the entry: ";
+
+            std::getline(std::cin, input);
+            input = manager.trim(input);
+            for (char ch : input)
             {
-                date.erase(0, 1);
+                if (ch >= 48 && ch <= 57 || ch == 45)
+                {
+                    std::cout << "debug: recognized numbers\n";
+                    manager.searchByDate(input);
+                    break;
+                }
+                else
+                {
+                    std::cout << "debug: recognized content\n";
+                    manager.searchByContent(input);
+                    break;
+                }
             }
-            manager.searchByDate(date);
             break;
         }
         case dont:

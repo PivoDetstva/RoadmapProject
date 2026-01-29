@@ -12,26 +12,30 @@ class JournalEntry
 {
 private:
     std::string date;
-    std::string args;
-    std::string path;
     std::string title;
+    std::string text;
+    std::string path;
 
 public:
     JournalEntry() {};
 
-    JournalEntry(std::string newDate, std::string newArgs, std::string newPath)
+    JournalEntry(std::string newDate, std::string newTitle, std::string newText, std::string newPath)
     {
         date = newDate;
-        args = newArgs;
+        title = newTitle;
+        text = newText;
         path = newPath;
     }
 
     std::string serialize() const;
+    std::string shortserialize() const;
     void deserialize(std::string data);
     std::string getDate() const;
-    std::string getArgs();
+    std::string getTitle() const;
+    std::string getText() const;
     std::string getPath() const;
     void setDate(string d);
-    void setArgs(string a);
+    void setTitle(string t);
+    void setText(string a);
     void setPath(string p);
 };

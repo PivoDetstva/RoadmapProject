@@ -3,6 +3,8 @@
 #include <fstream>
 #include <vector>
 #include <filesystem>
+#include <algorithm>
+#include <cctype>
 #include "entry.h"
 
 #pragma once
@@ -16,7 +18,6 @@ public:
     void saveToFile(string filename);
     void addEntry(JournalEntry entry);
     void loadFromFile(string filename); // change later to boolean
-    void showAll();
     void printAll() const;
     void searchByDate(string queryDate) const;
     void deleteEntry(int index);
@@ -24,6 +25,7 @@ public:
     string trim(const string &s);
     bool isValidDate(const string &date);
     bool isValidPath(string pathStr);
-    void showFromFile(int index) const;
+    void searchByContent(string keyword) const;
     void previewCode(int index) const;
+    void toLower(std::string &s);
 };

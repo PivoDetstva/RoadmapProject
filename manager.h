@@ -27,5 +27,6 @@ public:
     bool isValidPath(string pathStr);
     void searchByContent(string keyword) const;
     void previewCode(int index) const;
-    void toLower(std::string &s);
+    void toLower(std::string &s) const;
+    void applyXOR(std::string &data, const char key = 'K');
 };

@@ -7,7 +7,8 @@ void JournalManager::addEntry(JournalEntry entry)
 
 void JournalManager::saveToFile(string filename)
 {
-    std::ofstream file(filename);
+    std::string tempFilename = filename + ".tmp";
+    std::ofstream file(tempFilename);
     if (!file.is_open())
     {
         std::cout << "error opening the file save \n";
@@ -16,9 +17,17 @@ void JournalManager::saveToFile(string filename)
     std::cout << "saving\n";
     for (const auto &entry : entries)
     {
-        file << entry.serialize() << std::endl;
+        string encrypted = entry.serialize();
+        applyXOR(encrypted);
+        file << encrypted << std::endl;
     }
     file.close();
+    std::error_code ec;
+    std::filesystem::rename(tempFilename, filename, ec);
+    if (ec)
+    {
+        std::cerr << "Error renaming file " << ec.message() << std::endl;
+    }
     std::cout << "saving complete\n";
 }
 void JournalManager::loadFromFile(string filename)
@@ -33,6 +42,7 @@ void JournalManager::loadFromFile(string filename)
     string line;
     while (std::getline(file, line))
     {
+        applyXOR(line);
         if (line.empty())
             continue;
 
@@ -78,7 +88,7 @@ void JournalManager::searchByDate(string queryDate) const
     {
         if (entry.getDate().find(queryDate) != std::string::npos)
         {
-            std::cout << entry.serialize() << endl;
+            std::cout << entry.shortserialize() << endl;
             found = true;
             std::cout << "Entry found\n";
         }
@@ -122,6 +132,7 @@ void JournalManager::searchByContent(string keyword) const
     bool found = false;
 
     string lowerKeyword = keyword;
+    toLower(lowerKeyword);
 
     for (const auto &entry : entries)
     {
@@ -132,13 +143,13 @@ void JournalManager::searchByContent(string keyword) const
             lowerKeyword.begin(), lowerKeyword.end(),
             [](unsigned char ch1, unsigned char ch2)
             {
-                return std::tolower(ch1) == std::tolower(ch2);
+                return std::tolower(ch1) == ch2;
             });
         auto it2 = std::search(text.begin(), text.end(),
                                lowerKeyword.begin(), lowerKeyword.end(),
                                [](unsigned char ch1, unsigned char ch2)
                                {
-                                   return std::tolower(ch1) == std::tolower(ch2);
+                                   return std::tolower(ch1) == ch2;
                                });
         if (it != title.end() || it2 != text.end())
         {
@@ -181,12 +192,19 @@ void JournalManager::previewCode(int index) const
     {
         std::cout << line << std::endl;
     }
-    std::cout << "\n--- END OF CODE ---\    n";
+    std::cout << "\n--- END OF CODE ---\n";
 }
-void JournalManager::toLower(std::string &s)
+void JournalManager::toLower(std::string &s) const
 {
     for (char &c : s)
     {
         c = std::tolower(static_cast<unsigned char>(c));
+    }
+}
+void JournalManager::applyXOR(std::string &data, const char key)
+{
+    for (char &c : data)
+    {
+        c ^= key;
     }
 }

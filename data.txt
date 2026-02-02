@@ -1,4 +1,0 @@
-2026-01-26|Test entry|Testing text  |  /home/feetlover/C++/RoadmapProject/entry.h
-2026-26-01|Just testing!|Test about on how new path validation works|none
-2004-12-31|Test for sort|Sorting test|none
-2046-09-13|Sorting test|Testing test for bigger number|none

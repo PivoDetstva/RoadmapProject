@@ -2,8 +2,11 @@
 #include "manager.h"
 
 string filename = "data.txt";
+string tempfile = "data.tmp";
 const string RED = "\033[31m";
 const string GREEN = "\033[32m";
+const string YELLOW = "\033[33m";
+const string BLUE = "\033[34m";
 const string RESET = "\033[0m";
 
 enum enums
@@ -15,6 +18,7 @@ enum enums
     dont = 5,
     preview = 6,
     menu = 9,
+    // case export in plan?
 };
 
 int main()
@@ -31,7 +35,7 @@ int main()
               << "6.Preview code\n"
               << "If you want to see this menu again press '9'\n";
     // I'll need to repeat this after every action made for better UI understanding, but in console
-    // it would be a mess, so better have this idea for
+    // it would be a mess, so better have this idea for future
     int switchinput;
     while (true)
     {
@@ -45,7 +49,7 @@ int main()
 
         if (switchinput == sexit)
         {
-            manager.saveToFile(filename);
+            manager.saveToFile(tempfile);
             std::cout << "Goodbye!\n";
             break;
         }
@@ -61,8 +65,9 @@ int main()
             std::cout << "Make an entry! Write date, arguments and path, to divide it use commas.\n";
             while (true)
             {
-                std::cout << "Let's start with a date: ";
+                std::cout << "Let's start with a date, use YYYY-MM-DD: ";
                 std::getline(std::cin, date);
+                // IN FUTURE: refactor date, make months and date validation. Maybe change to int. or use date.h
                 date = manager.trim(date);
                 if (manager.isValidDate(date) == false)
                 {
@@ -111,7 +116,8 @@ int main()
                 path = manager.trim(path);
                 if (path == "none")
                 {
-                    std::cout << "Text entry saved\n";
+                    std::cout << GREEN << "Text entry saved\n"
+                              << RESET;
                     break;
                 }
                 if (manager.isValidPath(path) == false)
@@ -126,7 +132,7 @@ int main()
             JournalEntry newEntry(date, title, args, path);
             manager.addEntry(newEntry);
 
-            std::cout << GREEN << "Added new entry!" << RESET << "\n";
+            std::cout << BLUE << "Added new entry!" << RESET << "\n";
             break;
         }
         case show:
@@ -140,7 +146,9 @@ int main()
                       << "2.Show all entries\n"
                       << "3.Save and Exit\n"
                       << "4. Find by date\n"
-                      << "5.Delete entry\n";
+                      << "5.Delete entry\n"
+                      << "6.Preview code\n"
+                      << "9. Preview menu\n";
             break;
         }
         case gofind:
@@ -155,14 +163,16 @@ int main()
             {
                 if (ch >= 48 && ch <= 57 || ch == 45)
                 {
-                    std::cout << "debug: recognized numbers\n";
+                    std::cout << "Found those entries by " << input << "request\n";
                     manager.searchByDate(input);
+                    // here should lie open entry logic
                     break;
                 }
                 else
                 {
-                    std::cout << "debug: recognized content\n";
+                    std::cout << "Found those entries by " << input << "request\n";
                     manager.searchByContent(input);
+                    // here should lie open entry logic
                     break;
                 }
             }

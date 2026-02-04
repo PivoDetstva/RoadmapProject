@@ -4,7 +4,7 @@
 #include <vector>
 #include <filesystem>
 #include <algorithm>
-#include <cctype>
+#include <chrono>
 #include "entry.h"
 
 #pragma once
@@ -16,7 +16,7 @@ private:
 public:
     JournalManager() {};
     void saveToFile(string filename);
-    void addEntry(JournalEntry entry);
+    void addEntry(const JournalEntry &entry);
     void loadFromFile(string filename); // change later to boolean
     void printAll() const;
     void searchByDate(string queryDate) const;
@@ -29,4 +29,5 @@ public:
     void previewCode(int index) const;
     void toLower(std::string &s) const;
     void applyXOR(std::string &data, const char key = 'K');
+    void openEntry(int index) const;
 };

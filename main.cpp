@@ -49,7 +49,7 @@ int main()
 
         if (switchinput == sexit)
         {
-            manager.saveToFile(tempfile);
+            manager.saveToFile(filename);
             std::cout << "Goodbye!\n";
             break;
         }
@@ -137,7 +137,11 @@ int main()
         }
         case show:
         {
+            int index;
             manager.printWIthIndex();
+            std::cout << "\nChoose what entry do you want to open: ";
+            std::cin >> index;
+            manager.openEntry(index);
             break;
         }
         case menu:

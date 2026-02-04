@@ -1,6 +1,6 @@
 #include "manager.h"
 
-void JournalManager::addEntry(JournalEntry entry)
+void JournalManager::addEntry(const JournalEntry &entry)
 {
     entries.push_back(entry);
 }
@@ -14,7 +14,6 @@ void JournalManager::saveToFile(string filename)
         std::cout << "error opening the file save \n";
         return;
     }
-    std::cout << "saving\n";
     for (const auto &entry : entries)
     {
         string encrypted = entry.serialize();
@@ -74,11 +73,11 @@ void JournalManager::printWIthIndex() const
 
     for (size_t i = 0; i < sortedEntries.size(); ++i)
     {
+        std::cout << "\n[" << i + 1 << "] " << sortedEntries[i].shortserialize();
         if (sortedEntries[i].getPath() != "none")
         {
             std::cout << " [Contains code]";
         }
-        std::cout << "\n[" << i + 1 << "] " << sortedEntries[i].shortserialize();
     }
 }
 void JournalManager::searchByDate(string queryDate) const
@@ -117,11 +116,15 @@ string JournalManager::trim(const string &s)
 }
 bool JournalManager::isValidDate(const string &date)
 {
-    if (date.length() != 10)
+    // still approves 2027-30-30
+    std::istringstream ss{date};
+    std::chrono::year_month_day ymd;
+
+    if (!(ss >> std::chrono::parse("%Y-%m-%d", ymd)))
+    {
         return false;
-    if (date[4] == '-' && date[7] == '-')
-        return true;
-    return false;
+    }
+    return ymd.ok();
 }
 bool JournalManager::isValidPath(string pathStr)
 {
@@ -206,5 +209,26 @@ void JournalManager::applyXOR(std::string &data, const char key)
     for (char &c : data)
     {
         c ^= key;
+    }
+}
+void JournalManager::openEntry(int index) const
+{
+    if (index < 1 || index > entries.size())
+    {
+        std::cout << "Wrong index!\n";
+        return;
+    }
+    auto entry = entries.at(index - 1);
+    std::cout << entry.serialize();
+    if (entry.getPath() != "none")
+    {
+        char choice;
+        std::cout << "\nAttached code found. Open file? (y/n): ";
+        std::cin >> choice;
+        if (choice == 'y' || choice == 'Y')
+        {
+            std::string command = "xdg-open " + entry.getPath();
+            std::system(command.c_str());
+        }
     }
 }

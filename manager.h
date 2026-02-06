@@ -30,4 +30,6 @@ public:
     void toLower(std::string &s) const;
     void applyXOR(std::string &data, const char key = 'K');
     void openEntry(int index) const;
+    string toHex(const std::string &input);
+    string fromHex(const std::string &input);
 };

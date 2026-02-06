@@ -18,7 +18,8 @@ void JournalManager::saveToFile(string filename)
     {
         string encrypted = entry.serialize();
         applyXOR(encrypted);
-        file << encrypted << std::endl;
+        string safedata = toHex(encrypted);
+        file << safedata << std::endl;
     }
     file.close();
     std::error_code ec;
@@ -41,12 +42,13 @@ void JournalManager::loadFromFile(string filename)
     string line;
     while (std::getline(file, line))
     {
-        applyXOR(line);
         if (line.empty())
             continue;
 
+        string decoded = fromHex(line);
+        applyXOR(decoded);
         JournalEntry entry;
-        entry.deserialize(line);
+        entry.deserialize(decoded);
         entries.push_back(entry);
     }
     file.close();
@@ -60,7 +62,6 @@ void JournalManager::printWIthIndex() const
         std::cout << "Empty.\n";
         return;
     }
-
     std::vector<JournalEntry> sortedEntries = entries;
     long codecount = std::count_if(entries.begin(), entries.end(), [](const JournalEntry &e)
                                    { return e.getPath() != "none"; });
@@ -116,7 +117,6 @@ string JournalManager::trim(const string &s)
 }
 bool JournalManager::isValidDate(const string &date)
 {
-    // still approves 2027-30-30
     std::istringstream ss{date};
     std::chrono::year_month_day ymd;
 
@@ -218,9 +218,10 @@ void JournalManager::openEntry(int index) const
         std::cout << "Wrong index!\n";
         return;
     }
-    auto entry = entries.at(index - 1);
+    const auto &entry = entries.at(index - 1);
     std::cout << entry.serialize();
-    if (entry.getPath() != "none")
+    const auto &path = entry.getPath();
+    if (path.length() > 1 && path != "none")
     {
         char choice;
         std::cout << "\nAttached code found. Open file? (y/n): ";
@@ -231,4 +232,26 @@ void JournalManager::openEntry(int index) const
             std::system(command.c_str());
         }
     }
+}
+std::string JournalManager::toHex(const std::string &input)
+{
+    std::ostringstream oss;
+    for (unsigned char c : input)
+    {
+        oss << std::hex << std::setw(2) << std::setfill('0') << (int)c;
+    }
+    return oss.str();
+}
+std::string JournalManager::fromHex(const std::string &input)
+{
+    std::string output;
+    if (input.length() % 2 != 0)
+        return "";
+    for (size_t i = 0; i < input.length(); i += 2)
+    {
+        std::string byteString = input.substr(i, 2);
+        char byte = (char)strtol(byteString.c_str(), nullptr, 16);
+        output += byte;
+    }
+    return output;
 }

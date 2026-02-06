@@ -37,6 +37,7 @@ int main()
     // I'll need to repeat this after every action made for better UI understanding, but in console
     // it would be a mess, so better have this idea for future
     int switchinput;
+    // add ANSI
     while (true)
     {
 
@@ -44,6 +45,7 @@ int main()
         {
             std::cin.clear();
             std::cin.ignore(10000, '\n');
+
             continue;
         }
 
@@ -53,7 +55,7 @@ int main()
             std::cout << "Goodbye!\n";
             break;
         }
-
+        std::cout << "\033[A\033[2K";
         switch (switchinput)
         {
         case add:

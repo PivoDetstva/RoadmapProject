@@ -159,6 +159,8 @@ int main()
         }
         case gofind:
         {
+            // todo: when word is mistaken or something, let user make choice again
+            //[implement it into while cycle]
             string input;
             cin.ignore();
             std::cout << "Enter a date or any word of the entry: ";

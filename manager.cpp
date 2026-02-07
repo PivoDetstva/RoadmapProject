@@ -1,5 +1,5 @@
 #include "manager.h"
-
+#include "encryptor.h"
 void JournalManager::addEntry(const JournalEntry &entry)
 {
     entries.push_back(entry);
@@ -17,8 +17,8 @@ void JournalManager::saveToFile(string filename)
     for (const auto &entry : entries)
     {
         string encrypted = entry.serialize();
-        applyXOR(encrypted);
-        string safedata = toHex(encrypted);
+        Encryptor::applyXOR(encrypted); // calls too few arguments error, so I needed to add 'K' int class method
+        string safedata = Encryptor::toHex(encrypted);
         file << safedata << std::endl;
     }
     file.close();
@@ -45,8 +45,8 @@ void JournalManager::loadFromFile(string filename)
         if (line.empty())
             continue;
 
-        string decoded = fromHex(line);
-        applyXOR(decoded);
+        string decoded = Encryptor::fromHex(line);
+        Encryptor::applyXOR(decoded);
         JournalEntry entry;
         entry.deserialize(decoded);
         entries.push_back(entry);
@@ -204,7 +204,7 @@ void JournalManager::toLower(std::string &s) const
         c = std::tolower(static_cast<unsigned char>(c));
     }
 }
-void JournalManager::applyXOR(std::string &data, const char key)
+void Encryptor::applyXOR(std::string &data, const char key)
 {
     for (char &c : data)
     {
@@ -233,7 +233,7 @@ void JournalManager::openEntry(int index) const
         }
     }
 }
-std::string JournalManager::toHex(const std::string &input)
+std::string Encryptor::toHex(const std::string &input)
 {
     std::ostringstream oss;
     for (unsigned char c : input)
@@ -242,7 +242,7 @@ std::string JournalManager::toHex(const std::string &input)
     }
     return oss.str();
 }
-std::string JournalManager::fromHex(const std::string &input)
+std::string Encryptor::fromHex(const std::string &input)
 {
     std::string output;
     if (input.length() % 2 != 0)

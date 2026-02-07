@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 #include <filesystem>
+#include <optional>
 #include <algorithm>
 #include <chrono>
 #include "entry.h"
@@ -28,8 +29,25 @@ public:
     void searchByContent(string keyword) const;
     void previewCode(int index) const;
     void toLower(std::string &s) const;
-    void applyXOR(std::string &data, const char key = 'K');
     void openEntry(int index) const;
-    string toHex(const std::string &input);
-    string fromHex(const std::string &input);
+    std::optional<JournalEntry> searchByID(int id);
+    /*Should look like this:
+    for (const auto& entry : entries) {
+        if (entry.getId() == id) {
+            return entry;
+        }
+    }
+    return std::nullopt;
+}
+    It is good new option for a search, also editEntry should be added next by.
+    This option needs a logic refactoring, cause I don't have ID now, and main implementing should be like that:
+    auto result = manager.findEntryById(5);
+    if (result.has_value()) {
+    std::cout << result->getTitle();
+    }
+    else {
+    std::cout << "Not found";
+}
+
+*/
 };

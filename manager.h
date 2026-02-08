@@ -6,6 +6,7 @@
 #include <optional>
 #include <algorithm>
 #include <chrono>
+#include <string_view>
 #include "entry.h"
 
 #pragma once
@@ -16,13 +17,13 @@ private:
 
 public:
     JournalManager() {};
-    void saveToFile(string filename);
+    void saveToFile(string_view filename);
     void addEntry(const JournalEntry &entry);
-    void loadFromFile(string filename); // change later to boolean
+    void loadFromFile(string_view filename); // change later to boolean
     void printAll() const;
-    void searchByDate(string queryDate) const;
+    void searchByDate(string_view queryDate) const;
     void deleteEntry(int index);
-    void printWIthIndex() const;
+    void printWithIndex() const;
     string trim(const string &s);
     bool isValidDate(const string &date);
     bool isValidPath(string pathStr);
@@ -30,6 +31,7 @@ public:
     void previewCode(int index) const;
     void toLower(std::string &s) const;
     void openEntry(int index) const;
+    bool openCheck();
     std::optional<JournalEntry> searchByID(int id);
     /*Should look like this:
     for (const auto& entry : entries) {

@@ -5,13 +5,15 @@ void JournalManager::addEntry(const JournalEntry &entry)
     entries.push_back(entry);
 }
 
-void JournalManager::saveToFile(string filename)
+void JournalManager::saveToFile(string_view filename)
 {
-    std::string tempFilename = filename + ".tmp";
+    std::string fname(filename);
+    std::string tempFilename(fname);
+    tempFilename = fname + ".tmp";
     std::ofstream file(tempFilename);
     if (!file.is_open())
     {
-        std::cout << "error opening the file save \n";
+        std::cerr << "Error: save file wasn't opened \n";
         return;
     }
     for (const auto &entry : entries)
@@ -27,20 +29,21 @@ void JournalManager::saveToFile(string filename)
     if (ec)
     {
         std::cerr << "Error renaming file " << ec.message() << std::endl;
+        return;
     }
-    std::cout << "saving complete\n";
 }
-void JournalManager::loadFromFile(string filename)
+void JournalManager::loadFromFile(string_view filename)
 {
-    std::ifstream file(filename);
+    std::string fname(filename);
+    std::ifstream loadfile(fname);
     std::cout << "loading\n";
-    if (!file.is_open())
+    if (!loadfile.is_open())
     {
-        std::cout << "error opening the file load\n";
+        std::cerr << "Error: load file wasn't opened\n";
         return;
     }
     string line;
-    while (std::getline(file, line))
+    while (std::getline(loadfile, line))
     {
         if (line.empty())
             continue;
@@ -51,15 +54,14 @@ void JournalManager::loadFromFile(string filename)
         entry.deserialize(decoded);
         entries.push_back(entry);
     }
-    file.close();
-    std::cout << "LOading complete\n";
+    loadfile.close();
 }
-void JournalManager::printWIthIndex() const
+void JournalManager::printWithIndex() const
 {
 
     if (entries.empty())
     {
-        std::cout << "Empty.\n";
+        std::cerr << "Error: Entry file is empty.\n";
         return;
     }
     std::vector<JournalEntry> sortedEntries = entries;
@@ -74,27 +76,28 @@ void JournalManager::printWIthIndex() const
 
     for (size_t i = 0; i < sortedEntries.size(); ++i)
     {
-        std::cout << "\n[" << i + 1 << "] " << sortedEntries[i].shortserialize();
+        std::cout << "\n[" << i + 1 << "] " << sortedEntries[i].getDate() << " | "
+                  << sortedEntries[i].getTitle();
         if (sortedEntries[i].getPath() != "none")
         {
             std::cout << " [Contains code]";
         }
     }
 }
-void JournalManager::searchByDate(string queryDate) const
+void JournalManager::searchByDate(string_view queryDate) const
 {
     bool found = false;
     for (const auto &entry : entries)
     {
         if (entry.getDate().find(queryDate) != std::string::npos)
         {
-            std::cout << entry.shortserialize() << endl;
+            std::cout << entry.getDate() << " | " << entry.getTitle() << endl;
             found = true;
             std::cout << "Entry found\n";
         }
     }
     if (!found)
-        cout << "Not found\n";
+        std::cout << "Not found\n";
 }
 void JournalManager::deleteEntry(int index)
 {
@@ -156,7 +159,7 @@ void JournalManager::searchByContent(string keyword) const
                                });
         if (it != title.end() || it2 != text.end())
         {
-            std::cout << "Found: " << entry.shortserialize() << "\n";
+            std::cout << "Found: " << entry.getDate() << " | " << entry.getTitle() << "\n";
             found = true;
         }
     }
@@ -179,14 +182,14 @@ void JournalManager::previewCode(int index) const
     }
     if (!std::filesystem::exists(path))
     {
-        std::cout << "Error: FIle wasn't found on " << path << "\n";
+        std::cerr << "Error: FIle wasn't found on " << path << "\n";
         return;
     }
 
     std::ifstream codefile(path);
     if (!codefile.is_open())
     {
-        std::cout << "Error opening the file codefile\n";
+        std::cerr << "Error opening the file codefile\n";
         return;
     }
     std::cout << "\n--- START OF CODE (" << path << ") ---\n";
@@ -219,7 +222,11 @@ void JournalManager::openEntry(int index) const
         return;
     }
     const auto &entry = entries.at(index - 1);
-    std::cout << entry.serialize();
+    std::cout << "\t\t" << entry.getTitle()
+              << "\n\n"
+              << entry.getText()
+              << "\n"
+              << "Created on " << entry.getDate();
     const auto &path = entry.getPath();
     if (path.length() > 1 && path != "none")
     {
@@ -232,6 +239,16 @@ void JournalManager::openEntry(int index) const
             std::system(command.c_str());
         }
     }
+}
+bool JournalManager::openCheck()
+{
+    if (entries.empty())
+    {
+        std::cout << "Entry list are empty!\n";
+        return true;
+    }
+    else
+        return false;
 }
 std::string Encryptor::toHex(const std::string &input)
 {

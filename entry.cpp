@@ -4,15 +4,11 @@ string JournalEntry::serialize() const
 {
     return date + "|" + title + "|" + text + "|" + path;
 }
-string JournalEntry::shortserialize() const
-{
-    return date + "|" + title;
-}
 void JournalEntry::deserialize(string data)
 {
     if (data.empty())
     {
-        std::cout << "No data received\n";
+        std::cerr << "Error: No data received\n";
         return;
     }
     std::istringstream iss(data);

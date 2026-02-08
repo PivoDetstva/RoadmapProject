@@ -28,7 +28,6 @@ public:
     }
 
     std::string serialize() const;
-    std::string shortserialize() const;
     void deserialize(std::string data);
     std::string getDate() const;
     std::string getTitle() const;

@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-namespace JournalConstants
+namespace CONSTS
 {
     inline const std::string DEFAULT_DATA_FILE = "data.txt";
     inline const std::string TEMP_FILE_EXTENSION = ".tmp";
@@ -9,7 +9,4 @@ namespace JournalConstants
     inline const char DEFAULT_XOR_KEY = 'K';
 
     inline const std::string NO_CODE_PATH = "none";
-    // didn't made date along yet
-    inline const int MIN_DATE_LENGTH = 10;
-    inline const char DATE_SEPARATOR = '-';
 }

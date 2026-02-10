@@ -5,11 +5,10 @@ void JournalManager::addEntry(const JournalEntry &entry)
     entries.push_back(entry);
 }
 
-void JournalManager::saveToFile(string_view filename)
+void JournalManager::saveToFile(const string &filename)
 {
-    std::string fname(filename);
-    std::string tempFilename(fname);
-    tempFilename = fname + ".tmp";
+    std::string tempFilename(filename);
+    tempFilename = filename + ".tmp";
     std::ofstream file(tempFilename);
     if (!file.is_open())
     {
@@ -19,7 +18,7 @@ void JournalManager::saveToFile(string_view filename)
     for (const auto &entry : entries)
     {
         string encrypted = entry.serialize();
-        Encryptor::applyXOR(encrypted); // calls too few arguments error, so I needed to add 'K' int class method
+        Encryptor::applyXOR(encrypted);
         string safedata = Encryptor::toHex(encrypted);
         file << safedata << std::endl;
     }
@@ -32,10 +31,9 @@ void JournalManager::saveToFile(string_view filename)
         return;
     }
 }
-void JournalManager::loadFromFile(string_view filename)
+void JournalManager::loadFromFile(const string &filename)
 {
-    std::string fname(filename);
-    std::ifstream loadfile(fname);
+    std::ifstream loadfile(filename);
     std::cout << "loading\n";
     if (!loadfile.is_open())
     {
@@ -66,7 +64,7 @@ void JournalManager::printWithIndex() const
     }
     std::vector<JournalEntry> sortedEntries = entries;
     long codecount = std::count_if(entries.begin(), entries.end(), [](const JournalEntry &e)
-                                   { return e.getPath() != "none"; });
+                                   { return e.getPath() != CONSTS::NO_CODE_PATH; });
 
     std::sort(sortedEntries.begin(), sortedEntries.end(), [](const JournalEntry &a, const JournalEntry &b)
               { return a.getDate() < b.getDate(); });
@@ -78,7 +76,7 @@ void JournalManager::printWithIndex() const
     {
         std::cout << "\n[" << i + 1 << "] " << sortedEntries[i].getDate() << " | "
                   << sortedEntries[i].getTitle();
-        if (sortedEntries[i].getPath() != "none")
+        if (sortedEntries[i].getPath() != CONSTS::NO_CODE_PATH)
         {
             std::cout << " [Contains code]";
         }
@@ -129,11 +127,11 @@ bool JournalManager::isValidDate(const string &date)
     }
     return ymd.ok();
 }
-bool JournalManager::isValidPath(string pathStr)
+bool JournalManager::isValidPath(string_view pathStr)
 {
     return std::filesystem::exists(pathStr);
 }
-void JournalManager::searchByContent(string keyword) const
+void JournalManager::searchByContent(const string &keyword) const
 {
     bool found = false;
 
@@ -218,7 +216,7 @@ void JournalManager::openEntry(int index) const
 {
     if (index < 1 || index > entries.size())
     {
-        std::cout << "Wrong index!\n";
+        std::cerr << "Wrong index!\n";
         return;
     }
     const auto &entry = entries.at(index - 1);
@@ -228,15 +226,35 @@ void JournalManager::openEntry(int index) const
               << "\n"
               << "Created on " << entry.getDate();
     const auto &path = entry.getPath();
-    if (path.length() > 1 && path != "none")
+    if (path.length() > 1 && path != CONSTS::NO_CODE_PATH)
     {
         char choice;
         std::cout << "\nAttached code found. Open file? (y/n): ";
         std::cin >> choice;
+        if (std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cerr << "Input broke\n";
+            return;
+        }
         if (choice == 'y' || choice == 'Y')
         {
-            std::string command = "xdg-open " + entry.getPath();
-            std::system(command.c_str());
+            if (isSafePath(entry.getPath()))
+            {
+                std::string command = "xdg-open '" + entry.getPath() + "'";
+                // add the apostrophe reading exception later
+                std::system(command.c_str());
+            }
+            else
+            {
+                std::cout << "File can be malicious, returning to menu...\n";
+                return;
+            }
+        }
+        else if (choice == 'n' || choice == 'N')
+        {
+            std::cout << "Going back to menu...\n";
         }
     }
 }
@@ -271,4 +289,39 @@ std::string Encryptor::fromHex(const std::string &input)
         output += byte;
     }
     return output;
+}
+bool JournalManager::isSafePath(std::string_view pathStr) const
+{
+    try
+    {
+        std::filesystem::path filePath(pathStr);
+
+        if (!std::filesystem::exists(filePath))
+        {
+            std::cerr << "Error: File does not exist\n";
+            return false;
+        }
+
+        if (!std::filesystem::is_regular_file(filePath))
+        {
+            std::cerr << "Error: Not a regular file\n";
+            return false;
+        }
+
+        std::string ext = filePath.extension().string();
+        if (ext != ".cpp" && ext != ".h" && ext != ".txt" && ext != ".md")
+        {
+            std::cerr << "Error: Unsupported file type\n";
+            return false;
+        } // maybe later extend the variety of acceptable formats, like bash or else
+
+        std::filesystem::path canonicalPath = std::filesystem::canonical(filePath);
+
+        return true;
+    }
+    catch (const std::filesystem::filesystem_error &e)
+    {
+        std::cerr << "Error: Filesystem error - " << e.what() << "\n";
+        return false;
+    } // don't really know how this method works but more important that it is working xd
 }

@@ -17,21 +17,22 @@ private:
 
 public:
     JournalManager() {};
-    void saveToFile(string_view filename);
+    void saveToFile(const string &filename);
     void addEntry(const JournalEntry &entry);
-    void loadFromFile(string_view filename); // change later to boolean
+    void loadFromFile(const string &filename); // change later to boolean
     void printAll() const;
     void searchByDate(string_view queryDate) const;
     void deleteEntry(int index);
     void printWithIndex() const;
     string trim(const string &s);
     bool isValidDate(const string &date);
-    bool isValidPath(string pathStr);
-    void searchByContent(string keyword) const;
+    bool isValidPath(string_view pathStr);
+    void searchByContent(const string &keyword) const;
     void previewCode(int index) const;
     void toLower(std::string &s) const;
     void openEntry(int index) const;
     bool openCheck();
+    bool isSafePath(std::string_view pathStr) const;
     std::optional<JournalEntry> searchByID(int id);
     /*Should look like this:
     for (const auto& entry : entries) {

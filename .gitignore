@@ -1,4 +1,6 @@
+build/
 app
 data.txt
 data.tmp
+.gitignore
 *.txt.tmp

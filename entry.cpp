@@ -2,22 +2,42 @@
 
 string JournalEntry::serialize() const
 {
-    return date + "|" + title + "|" + text + "|" + path;
+    return std::to_string(id) + "|" + date + "|" + title + "|" + text + "|" + path;
 }
 void JournalEntry::deserialize(string data)
 {
-    if (data.empty())
+    if (data.empty() || data.length() < 2)
     {
-        std::cerr << "Error: No data received\n";
         return;
     }
+
     std::istringstream iss(data);
+    string tempID;
+
+    if (std::getline(iss, tempID, '|'))
+    {
+        try
+        {
+            // Пытаемся превратить в число только если в строке есть хоть одна цифра
+            if (!tempID.empty() && std::isdigit(tempID[0]))
+            {
+                id = std::stoi(tempID);
+            }
+        }
+        catch (...)
+        {
+            id = 0; // Если случилась беда, просто ставим 0, но не падаем
+        }
+    }
 
     std::getline(iss, date, '|');
     std::getline(iss, title, '|');
     std::getline(iss, text, '|');
     std::getline(iss, path, '|');
-    std::cout << "Desearilation completed well" << endl;
+}
+int JournalEntry::getID() const
+{
+    return id;
 }
 string JournalEntry::getDate() const
 {

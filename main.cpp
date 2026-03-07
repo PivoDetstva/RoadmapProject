@@ -2,13 +2,11 @@
 #include "manager.h"
 #include "Constants.h"
 
-string filename = CONSTS::DEFAULT_DATA_FILE;
-string tempfile = CONSTS::TEMP_FILE_EXTENSION;
-const string RED = "\033[31m";
-const string GREEN = "\033[32m";
-const string YELLOW = "\033[33m";
-const string BLUE = "\033[34m";
-const string RESET = "\033[0m";
+inline const string RED = "\033[31m";
+inline const string GREEN = "\033[32m";
+inline const string YELLOW = "\033[33m";
+inline const string BLUE = "\033[34m";
+inline const string RESET = "\033[0m";
 
 enum enums
 {
@@ -25,7 +23,7 @@ enum enums
 int main()
 {
     JournalManager manager;
-    manager.loadFromFile(filename);
+    manager.loadFromFile(CONSTS::filename);
 
     std::cout << "Welcome to our Roadmap menu, you have 6 choices: \n"
               << "1.Add Entry\n"
@@ -51,7 +49,7 @@ int main()
 
         if (switchinput == sexit)
         {
-            manager.saveToFile(filename);
+            manager.saveToFile(CONSTS::filename);
             std::cout << "Goodbye!\n";
             break;
         }
@@ -60,6 +58,7 @@ int main()
         {
         case add:
         {
+            int id;
             string date, title, args, path;
 
             cin.ignore();
@@ -130,7 +129,8 @@ int main()
                     break;
                 }
             }
-            JournalEntry newEntry(date, title, args, path);
+            id = manager.getNextID();
+            JournalEntry newEntry(id, date, title, args, path);
             manager.addEntry(newEntry);
 
             std::cout << BLUE << "Added new entry!" << RESET << "\n";
@@ -138,10 +138,34 @@ int main()
         }
         case show:
         {
-            int index; // maybe worth switching to string, cause there is no check for user not wanting to open any entry
-            // Yep there is a check for 0 but it's another check.
-            manager.printWithIndex();
-            if (manager.openCheck()) // seems not really good here, but good logic for me
+            int index;
+            SortType type;
+            std::string input;
+            std::cout << "How do you want to sort the entries?\n";
+            std::cin >> input;
+            if (std::cin.fail())
+            {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cerr << "Input broke\n";
+                break;
+            }
+            manager.toLower(input);
+            if (input == "date")
+            {
+                type = SortType::BY_DATE;
+            }
+            else if (input == "id")
+            {
+                type = SortType::BY_ID;
+            }
+            else
+            {
+                std::cout << "Wrong formation of sorting\n";
+                break;
+            }
+            manager.printWithIndex(type);
+            if (manager.openCheck())
             {
                 continue;
             }
@@ -154,7 +178,13 @@ int main()
                 std::cerr << "Input broke\n";
                 break;
             }
-            manager.openEntry(index); // maybe make it a cycle? So user would read entry and menu not pop up
+            JournalEntry *selected = manager.getEntryByViewIndex(index);
+            if (selected == nullptr)
+            {
+                std::cout << "Invalid index!\n";
+                break;
+            }
+            manager.openEntry(selected->getID()); // maybe make it a cycle? So user would read entry and menu not pop up
             break;
         }
         case menu:
@@ -207,8 +237,34 @@ int main()
                 continue;
             }
             int index;
+            SortType type;
+            std::string input;
+            std::cout << "How do you want to sort the entries?\n";
+            std::cin >> input;
+            if (std::cin.fail())
+            {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cerr << "Input broke\n";
+                break;
+            }
+
+            manager.toLower(input);
+            if (input == "date")
+            {
+                type = SortType::BY_DATE;
+            }
+            else if (input == "id")
+            {
+                type = SortType::BY_ID;
+            }
+            else
+            {
+                std::cout << "Wrong formation of sorting\n";
+                break;
+            }
             std::cout << "Choose which entry to delete: ";
-            manager.printWithIndex();
+            manager.printWithIndex(type);
             std::cin >> index;
             if (std::cin.fail())
             {
@@ -217,7 +273,13 @@ int main()
                 std::cerr << "Input broke\n";
                 break;
             }
-            manager.deleteEntry(index);
+            JournalEntry *selected = manager.getEntryByViewIndex(index);
+            if (selected == nullptr)
+            {
+                std::cout << "Invalid index!\n";
+                break;
+            }
+            manager.deleteEntry(selected->getID());
             break;
         }
         case preview:
@@ -227,14 +289,52 @@ int main()
                 continue;
             }
             int index;
+            SortType type;
+            std::string input;
+            std::cout << "How do you want to sort the entries?\n";
+            std::cin >> input;
+            if (std::cin.fail())
+            {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cerr << "Input broke\n";
+                break;
+            }
+            manager.toLower(input);
+            if (input == "date")
+            {
+                type = SortType::BY_DATE;
+            }
+            else if (input == "id")
+            {
+                type = SortType::BY_ID;
+            }
+            else
+            {
+                std::cout << "Wrong formation of sorting\n";
+                break;
+            }
             std::cout << "Which entry code you want to see?";
-            manager.printWithIndex();
+            manager.printWithIndex(type);
             std::cin >> index;
-            manager.previewCode(index);
+            if (std::cin.fail())
+            {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cerr << "Input broke\n";
+                break;
+            }
+            JournalEntry *selected = manager.getEntryByViewIndex(index);
+            if (selected == nullptr)
+            {
+                std::cout << "Invalid index!\n";
+                break;
+            }
+            manager.previewCode(selected->getID());
             break;
         }
         }
-        std::this_thread::sleep_for(2.5s); // for better UI, cause this long message trashes the buffer
+        std::this_thread::sleep_for(1s); // for better UI, cause this long message trashes the buffer
         std::cout << "Your current options: \n"
                   << YELLOW << "1.Add Entry" << RESET << "\n"
                   << YELLOW << "2.Show all" << RESET << "\n"

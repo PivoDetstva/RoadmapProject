@@ -9,4 +9,8 @@ namespace CONSTS
     inline const char DEFAULT_XOR_KEY = 'K';
 
     inline const std::string NO_CODE_PATH = "none";
+
+    inline const string filename = CONSTS::DEFAULT_DATA_FILE;
+    inline const string tempfile = CONSTS::TEMP_FILE_EXTENSION;
+
 }

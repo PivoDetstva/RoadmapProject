@@ -1,1 +1,0 @@
-g++ -std=c++23 *.cpp -o app && ./app

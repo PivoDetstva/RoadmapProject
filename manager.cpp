@@ -54,7 +54,7 @@ void JournalManager::loadFromFile(const string &filename)
     }
     loadfile.close();
 }
-void JournalManager::printWithIndex() const
+void JournalManager::printWithIndex(SortType type)
 {
 
     if (entries.empty())
@@ -62,26 +62,37 @@ void JournalManager::printWithIndex() const
         std::cerr << "Error: Entry file is empty.\n";
         return;
     }
-    std::vector<JournalEntry> sortedEntries = entries;
+    displayView.clear();
+    for (auto &entry : entries)
+    {
+        displayView.push_back(&entry);
+    }
     long codecount = std::count_if(entries.begin(), entries.end(), [](const JournalEntry &e)
                                    { return e.getPath() != CONSTS::NO_CODE_PATH; });
-
-    std::sort(sortedEntries.begin(), sortedEntries.end(), [](const JournalEntry &a, const JournalEntry &b)
-              { return a.getDate() < b.getDate(); });
-
-    std::cout << "Found " << sortedEntries.size() << " entries!\n"
+    if (type == SortType::BY_DATE)
+    {
+        std::sort(displayView.begin(), displayView.end(), [](const JournalEntry *a, const JournalEntry *b)
+                  { return a->getDate() < b->getDate(); });
+    }
+    else if (type == SortType::BY_ID)
+    {
+        std::sort(displayView.begin(), displayView.end(), [](const JournalEntry *a, const JournalEntry *b)
+                  { return a->getID() < b->getID(); });
+    }
+    std::cout << "Found " << displayView.size() << " entries!\n"
               << codecount << "of them contains code!";
 
-    for (size_t i = 0; i < sortedEntries.size(); ++i)
+    for (size_t i = 0; i < displayView.size(); ++i)
     {
-        std::cout << "\n[" << i + 1 << "] " << sortedEntries[i].getDate() << " | "
-                  << sortedEntries[i].getTitle();
-        if (sortedEntries[i].getPath() != CONSTS::NO_CODE_PATH)
+        std::cout << "[" << i + 1 << "] " << displayView[i]->getDate()
+                  << " | " << displayView[i]->getTitle() << "\n";
+        if (displayView[i]->getPath() != CONSTS::NO_CODE_PATH)
         {
             std::cout << " [Contains code]";
         }
     }
 }
+
 void JournalManager::searchByDate(string_view queryDate) const
 {
     bool found = false;
@@ -118,6 +129,7 @@ string JournalManager::trim(const string &s)
 }
 bool JournalManager::isValidDate(const string &date)
 {
+
     std::istringstream ss{date};
     std::chrono::year_month_day ymd;
 
@@ -172,7 +184,7 @@ void JournalManager::previewCode(int index) const
         return;
     }
 
-    string path = entries[index - 1].getPath();
+    string path = entries[index].getPath();
     if (path.empty())
     {
         std::cout << "User haven't provide any file" << std::endl;
@@ -324,4 +336,30 @@ bool JournalManager::isSafePath(std::string_view pathStr) const
         std::cerr << "Error: Filesystem error - " << e.what() << "\n";
         return false;
     } // don't really know how this method works but more important that it is working xd
+}
+int JournalManager::getNextID() const
+{
+    if (entries.empty())
+    {
+        return 1;
+    }
+
+    int maxID = 0;
+    for (const auto &entry : entries)
+    {
+        if (entry.getID() > maxID)
+        {
+            maxID = entry.getID();
+        }
+    }
+    return maxID + 1;
+}
+JournalEntry *JournalManager::getEntryByViewIndex(int userIndex)
+{
+    if (userIndex < 1 || userIndex > (int)displayView.size())
+    {
+        return nullptr;
+    }
+
+    return displayView[userIndex - 1];
 }

@@ -2,7 +2,6 @@
 #include <string>
 #include <thread>
 #include <fstream>
-#include <atomic>
 #include <sstream>
 #pragma once
 
@@ -11,6 +10,7 @@ using namespace std;
 class JournalEntry
 {
 private:
+    int id;
     std::string date;
     std::string title;
     std::string text;
@@ -19,8 +19,9 @@ private:
 public:
     JournalEntry() {};
 
-    JournalEntry(std::string newDate, std::string newTitle, std::string newText, std::string newPath)
+    JournalEntry(int newID, std::string newDate, std::string newTitle, std::string newText, std::string newPath)
     {
+        id = newID;
         date = newDate;
         title = newTitle;
         text = newText;
@@ -29,6 +30,7 @@ public:
 
     std::string serialize() const;
     void deserialize(std::string data);
+    int getID() const;
     std::string getDate() const;
     std::string getTitle() const;
     std::string getText() const;

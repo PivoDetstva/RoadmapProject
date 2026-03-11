@@ -1,10 +1,10 @@
 #include "entry.h"
 
-string JournalEntry::serialize() const
+std::string JournalEntry::serialize() const
 {
     return std::to_string(id) + "|" + date + "|" + title + "|" + text + "|" + path;
 }
-void JournalEntry::deserialize(string data)
+void JournalEntry::deserialize(std::string data)
 {
     if (data.empty() || data.length() < 2)
     {
@@ -12,7 +12,7 @@ void JournalEntry::deserialize(string data)
     }
 
     std::istringstream iss(data);
-    string tempID;
+    std::string tempID;
 
     if (std::getline(iss, tempID, '|'))
     {
@@ -39,38 +39,38 @@ int JournalEntry::getID() const
 {
     return id;
 }
-string JournalEntry::getDate() const
+std::string JournalEntry::getDate() const
 {
 
     return date;
 }
-string JournalEntry::getTitle() const
+std::string JournalEntry::getTitle() const
 {
     return title;
 }
-string JournalEntry::getText() const
+std::string JournalEntry::getText() const
 {
 
     return text;
 }
-string JournalEntry::getPath() const
+std::string JournalEntry::getPath() const
 {
 
     return path;
 }
-void JournalEntry::setDate(string d)
+void JournalEntry::setDate(std::string d)
 {
     d = date;
 }
-void JournalEntry::setTitle(string t)
+void JournalEntry::setTitle(std::string t)
 {
     t = title;
 }
-void JournalEntry::setText(string a)
+void JournalEntry::setText(std::string a)
 {
     a = text;
 }
-void JournalEntry::setPath(string p)
+void JournalEntry::setPath(std::string p)
 {
     p = path;
 }

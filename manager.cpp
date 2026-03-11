@@ -1,58 +1,20 @@
 #include "manager.h"
-#include "encryptor.h"
+#include "storage.h"
+#include "Constants.h"
 void JournalManager::addEntry(const JournalEntry &entry)
 {
     entries.push_back(entry);
 }
 
-void JournalManager::saveToFile(const string &filename)
+void JournalManager::saveData(const std::string &filename)
 {
-    std::string tempFilename(filename);
-    tempFilename = filename + ".tmp";
-    std::ofstream file(tempFilename);
-    if (!file.is_open())
-    {
-        std::cerr << "Error: save file wasn't opened \n";
-        return;
-    }
-    for (const auto &entry : entries)
-    {
-        string encrypted = entry.serialize();
-        Encryptor::applyXOR(encrypted);
-        string safedata = Encryptor::toHex(encrypted);
-        file << safedata << std::endl;
-    }
-    file.close();
-    std::error_code ec;
-    std::filesystem::rename(tempFilename, filename, ec);
-    if (ec)
-    {
-        std::cerr << "Error renaming file " << ec.message() << std::endl;
-        return;
-    }
+    Storage storage;
+    storage.saveToFile(entries, CONSTS::filename);
 }
-void JournalManager::loadFromFile(const string &filename)
+void JournalManager::loadData()
 {
-    std::ifstream loadfile(filename);
-    std::cout << "loading\n";
-    if (!loadfile.is_open())
-    {
-        std::cerr << "Error: load file wasn't opened\n";
-        return;
-    }
-    string line;
-    while (std::getline(loadfile, line))
-    {
-        if (line.empty())
-            continue;
-
-        string decoded = Encryptor::fromHex(line);
-        Encryptor::applyXOR(decoded);
-        JournalEntry entry;
-        entry.deserialize(decoded);
-        entries.push_back(entry);
-    }
-    loadfile.close();
+    Storage storageTool;
+    this->entries = storageTool.loadFromFile(CONSTS::filename);
 }
 void JournalManager::printWithIndex(SortType type)
 {
@@ -80,7 +42,7 @@ void JournalManager::printWithIndex(SortType type)
                   { return a->getID() < b->getID(); });
     }
     std::cout << "Found " << displayView.size() << " entries!\n"
-              << codecount << "of them contains code!";
+              << codecount << "of them contains code!\n";
 
     for (size_t i = 0; i < displayView.size(); ++i)
     {
@@ -93,14 +55,14 @@ void JournalManager::printWithIndex(SortType type)
     }
 }
 
-void JournalManager::searchByDate(string_view queryDate) const
+void JournalManager::searchByDate(std::string_view queryDate) const
 {
     bool found = false;
     for (const auto &entry : entries)
     {
         if (entry.getDate().find(queryDate) != std::string::npos)
         {
-            std::cout << entry.getDate() << " | " << entry.getTitle() << endl;
+            std::cout << entry.getDate() << " | " << entry.getTitle() << std::endl;
             found = true;
             std::cout << "Entry found\n";
         }
@@ -117,17 +79,17 @@ void JournalManager::deleteEntry(int index)
     }
 
     entries.erase(entries.begin() + index - 1);
-    std::cout << "Deleted entry #" << index << endl;
+    std::cout << "Deleted entry #" << index << std::endl;
 }
-string JournalManager::trim(const string &s)
+std::string JournalManager::trim(const std::string &s)
 {
     size_t first = s.find_first_not_of(" \t\n\r");
-    if (first == string::npos)
+    if (first == std::string::npos)
         return "";
     size_t last = s.find_last_not_of(" \t\n\r");
     return s.substr(first, (last - first + 1));
 }
-bool JournalManager::isValidDate(const string &date)
+bool JournalManager::isValidDate(const std::string &date)
 {
 
     std::istringstream ss{date};
@@ -139,21 +101,21 @@ bool JournalManager::isValidDate(const string &date)
     }
     return ymd.ok();
 }
-bool JournalManager::isValidPath(string_view pathStr)
+bool JournalManager::isValidPath(std::string_view pathStr)
 {
     return std::filesystem::exists(pathStr);
 }
-void JournalManager::searchByContent(const string &keyword) const
+void JournalManager::searchByContent(const std::string &keyword) const
 {
     bool found = false;
 
-    string lowerKeyword = keyword;
+    std::string lowerKeyword = keyword;
     toLower(lowerKeyword);
 
     for (const auto &entry : entries)
     {
-        string title = entry.getTitle();
-        string text = entry.getText();
+        std::string title = entry.getTitle();
+        std::string text = entry.getText();
         auto it = std::search(
             title.begin(), title.end(),
             lowerKeyword.begin(), lowerKeyword.end(),
@@ -184,7 +146,7 @@ void JournalManager::previewCode(int index) const
         return;
     }
 
-    string path = entries[index].getPath();
+    std::string path = entries[index].getPath();
     if (path.empty())
     {
         std::cout << "User haven't provide any file" << std::endl;
@@ -203,7 +165,7 @@ void JournalManager::previewCode(int index) const
         return;
     }
     std::cout << "\n--- START OF CODE (" << path << ") ---\n";
-    string line;
+    std::string line;
     while (std::getline(codefile, line))
     {
         std::cout << line << std::endl;
@@ -217,13 +179,7 @@ void JournalManager::toLower(std::string &s) const
         c = std::tolower(static_cast<unsigned char>(c));
     }
 }
-void Encryptor::applyXOR(std::string &data, const char key)
-{
-    for (char &c : data)
-    {
-        c ^= key;
-    }
-}
+
 void JournalManager::openEntry(int index) const
 {
     if (index < 1 || index > entries.size())
@@ -280,28 +236,6 @@ bool JournalManager::openCheck()
     else
         return false;
 }
-std::string Encryptor::toHex(const std::string &input)
-{
-    std::ostringstream oss;
-    for (unsigned char c : input)
-    {
-        oss << std::hex << std::setw(2) << std::setfill('0') << (int)c;
-    }
-    return oss.str();
-}
-std::string Encryptor::fromHex(const std::string &input)
-{
-    std::string output;
-    if (input.length() % 2 != 0)
-        return "";
-    for (size_t i = 0; i < input.length(); i += 2)
-    {
-        std::string byteString = input.substr(i, 2);
-        char byte = (char)strtol(byteString.c_str(), nullptr, 16);
-        output += byte;
-    }
-    return output;
-}
 bool JournalManager::isSafePath(std::string_view pathStr) const
 {
     try
@@ -335,7 +269,7 @@ bool JournalManager::isSafePath(std::string_view pathStr) const
     {
         std::cerr << "Error: Filesystem error - " << e.what() << "\n";
         return false;
-    } // don't really know how this method works but more important that it is working xd
+    }
 }
 int JournalManager::getNextID() const
 {

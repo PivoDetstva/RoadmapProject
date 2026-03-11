@@ -5,8 +5,6 @@
 #include <sstream>
 #pragma once
 
-using namespace std;
-
 class JournalEntry
 {
 private:
@@ -35,8 +33,8 @@ public:
     std::string getTitle() const;
     std::string getText() const;
     std::string getPath() const;
-    void setDate(string d);
-    void setTitle(string t);
-    void setText(string a);
-    void setPath(string p);
+    void setDate(std::string d);
+    void setTitle(std::string t);
+    void setText(std::string a);
+    void setPath(std::string p);
 };

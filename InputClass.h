@@ -1,0 +1,1 @@
+// Here I will make input logic to make main less spaghetti.

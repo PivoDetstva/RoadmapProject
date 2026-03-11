@@ -1,12 +1,7 @@
 #include "entry.h"
 #include "manager.h"
 #include "Constants.h"
-
-inline const string RED = "\033[31m";
-inline const string GREEN = "\033[32m";
-inline const string YELLOW = "\033[33m";
-inline const string BLUE = "\033[34m";
-inline const string RESET = "\033[0m";
+#include "storage.h"
 
 enum enums
 {
@@ -23,7 +18,8 @@ enum enums
 int main()
 {
     JournalManager manager;
-    manager.loadFromFile(CONSTS::filename);
+
+    manager.loadData();
 
     std::cout << "Welcome to our Roadmap menu, you have 6 choices: \n"
               << "1.Add Entry\n"
@@ -49,7 +45,7 @@ int main()
 
         if (switchinput == sexit)
         {
-            manager.saveToFile(CONSTS::filename);
+            manager.saveData(CONSTS::filename);
             std::cout << "Goodbye!\n";
             break;
         }
@@ -59,9 +55,9 @@ int main()
         case add:
         {
             int id;
-            string date, title, args, path;
+            std::string date, title, args, path;
 
-            cin.ignore();
+            std::cin.ignore();
 
             std::cout << "Make an entry! Write date, arguments and path, to divide it use commas.\n";
             while (true)
@@ -71,11 +67,11 @@ int main()
                 date = manager.trim(date);
                 if (manager.isValidDate(date) == false)
                 {
-                    std::cout << RED << "Invalid date format! Use YYYY-MM-DD" << RESET << "\n";
+                    std::cout << COLOR::RED << "Invalid date format! Use YYYY-MM-DD" << COLOR::RESET << "\n";
                 }
                 else
                 {
-                    std::cout << GREEN << "Date has been approved!" << RESET << "\n";
+                    std::cout << COLOR::GREEN << "Date has been approved!" << COLOR::RESET << "\n";
                     break;
                 }
             }
@@ -86,7 +82,7 @@ int main()
                 title = manager.trim(title);
                 if (title.empty())
                 {
-                    std::cout << RED << "You haven't provided any text :|" << RESET << "\n";
+                    std::cout << COLOR::RED << "You haven't provided any text :|" << COLOR::RESET << "\n";
                 }
                 else
                 {
@@ -100,7 +96,7 @@ int main()
                 args = manager.trim(args);
                 if (args.empty())
                 {
-                    std::cout << RED << "You haven't provided any text :|" << RESET << "\n";
+                    std::cout << COLOR::RED << "You haven't provided any text :|" << COLOR::RESET << "\n";
                 }
                 else
                 {
@@ -116,13 +112,13 @@ int main()
                 path = manager.trim(path);
                 if (path == CONSTS::NO_CODE_PATH)
                 {
-                    std::cout << GREEN << "Text entry saved\n"
-                              << RESET;
+                    std::cout << COLOR::GREEN << "Text entry saved\n"
+                              << COLOR::RESET;
                     break;
                 }
                 if (manager.isValidPath(path) == false)
                 {
-                    std::cout << RED << "Invalid path!" << RESET << "\n";
+                    std::cout << COLOR::RED << "Invalid path!" << COLOR::RESET << "\n";
                 }
                 else
                 {
@@ -133,7 +129,7 @@ int main()
             JournalEntry newEntry(id, date, title, args, path);
             manager.addEntry(newEntry);
 
-            std::cout << BLUE << "Added new entry!" << RESET << "\n";
+            std::cout << COLOR::BLUE << "Added new entry!" << COLOR::RESET << "\n";
             break;
         }
         case show:
@@ -189,12 +185,12 @@ int main()
         }
         case menu:
         {
-            std::cout << YELLOW << "1.Add Entry" << RESET << "\n"
-                      << YELLOW << "2.Show all" << RESET << "\n"
-                      << YELLOW << "3.Save and exit" << RESET << "\n"
-                      << YELLOW << "4.Search an entry" << RESET << "\n"
-                      << YELLOW << "5.Delete an entry" << RESET << "\n"
-                      << YELLOW << "6.Preview code" << RESET << "\n";
+            std::cout << COLOR::YELLOW << "1.Add Entry" << COLOR::RESET << "\n"
+                      << COLOR::YELLOW << "2.Show all" << COLOR::RESET << "\n"
+                      << COLOR::YELLOW << "3.Save and exit" << COLOR::RESET << "\n"
+                      << COLOR::YELLOW << "4.Search an entry" << COLOR::RESET << "\n"
+                      << COLOR::YELLOW << "5.Delete an entry" << COLOR::RESET << "\n"
+                      << COLOR::YELLOW << "6.Preview code" << COLOR::RESET << "\n";
             break;
         }
         case gofind:
@@ -205,8 +201,8 @@ int main()
             {
                 continue;
             }
-            string input;
-            cin.ignore();
+            std::string input;
+            std::cin.ignore();
             std::cout << "Enter a date or any word of the entry: ";
 
             std::getline(std::cin, input);
@@ -334,14 +330,14 @@ int main()
             break;
         }
         }
-        std::this_thread::sleep_for(1s); // for better UI, cause this long message trashes the buffer
+        std::this_thread::sleep_for(std::chrono::seconds(1)); // for better UI, cause this long message trashes the buffer
         std::cout << "Your current options: \n"
-                  << YELLOW << "1.Add Entry" << RESET << "\n"
-                  << YELLOW << "2.Show all" << RESET << "\n"
-                  << YELLOW << "3.Save and exit" << RESET << "\n"
-                  << YELLOW << "4.Search an entry" << RESET << "\n"
-                  << YELLOW << "5.Delete an entry" << RESET << "\n"
-                  << YELLOW << "6.Preview code" << RESET << "\n"
+                  << COLOR::YELLOW << "1.Add Entry" << COLOR::RESET << "\n"
+                  << COLOR::YELLOW << "2.Show all" << COLOR::RESET << "\n"
+                  << COLOR::YELLOW << "3.Save and exit" << COLOR::RESET << "\n"
+                  << COLOR::YELLOW << "4.Search an entry" << COLOR::RESET << "\n"
+                  << COLOR::YELLOW << "5.Delete an entry" << COLOR::RESET << "\n"
+                  << COLOR::YELLOW << "6.Preview code" << COLOR::RESET << "\n"
                   << "If you want to see this menu again press '9'\n";
     }
     return 0;

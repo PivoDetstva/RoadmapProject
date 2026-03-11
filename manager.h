@@ -7,20 +7,15 @@
 #include <algorithm>
 #include <string_view>
 #include "entry.h"
+#include "InputClass.h"
 
 #pragma once
-enum class SortType
-{
-    BY_ID,
-    BY_DATE
-};
 
 class JournalManager
 {
 private:
     std::vector<JournalEntry> entries;
     std::vector<JournalEntry *> displayView;
-    SortType currentSort;
 
 public:
     JournalManager() {};
@@ -35,7 +30,6 @@ public:
     bool isValidPath(std::string_view pathStr);
     void searchByContent(const std::string &keyword) const;
     void previewCode(int index) const;
-    void toLower(std::string &s) const;
     void openEntry(int index) const;
     bool openCheck();
     int getNextID() const;

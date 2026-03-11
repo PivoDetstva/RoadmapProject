@@ -10,4 +10,5 @@ add_executable(RoadmapProject
     entry.cpp
     manager.cpp
     storage.cpp
+    inputhandle.cpp
 )

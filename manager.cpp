@@ -107,10 +107,11 @@ bool JournalManager::isValidPath(std::string_view pathStr)
 }
 void JournalManager::searchByContent(const std::string &keyword) const
 {
+    InputHandle inputHandle;
     bool found = false;
 
     std::string lowerKeyword = keyword;
-    toLower(lowerKeyword);
+    inputHandle.toLower(lowerKeyword);
 
     for (const auto &entry : entries)
     {
@@ -171,13 +172,6 @@ void JournalManager::previewCode(int index) const
         std::cout << line << std::endl;
     }
     std::cout << "\n--- END OF CODE ---\n";
-}
-void JournalManager::toLower(std::string &s) const
-{
-    for (char &c : s)
-    {
-        c = std::tolower(static_cast<unsigned char>(c));
-    }
 }
 
 void JournalManager::openEntry(int index) const

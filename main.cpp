@@ -2,6 +2,7 @@
 #include "manager.h"
 #include "Constants.h"
 #include "storage.h"
+#include "InputClass.h"
 
 enum enums
 {
@@ -18,7 +19,7 @@ enum enums
 int main()
 {
     JournalManager manager;
-
+    InputHandle inputHandler;
     manager.loadData();
 
     std::cout << "Welcome to our Roadmap menu, you have 6 choices: \n"
@@ -134,46 +135,14 @@ int main()
         }
         case show:
         {
-            int index;
-            SortType type;
-            std::string input;
-            std::cout << "How do you want to sort the entries?\n";
-            std::cin >> input;
-            if (std::cin.fail())
-            {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cerr << "Input broke\n";
-                break;
-            }
-            manager.toLower(input);
-            if (input == "date")
-            {
-                type = SortType::BY_DATE;
-            }
-            else if (input == "id")
-            {
-                type = SortType::BY_ID;
-            }
-            else
-            {
-                std::cout << "Wrong formation of sorting\n";
-                break;
-            }
-            manager.printWithIndex(type);
+
+            manager.printWithIndex(inputHandler.getSortType());
             if (manager.openCheck())
             {
                 continue;
             }
-            std::cout << "\nChoose what entry do you want to open: ";
-            std::cin >> index;
-            if (std::cin.fail())
-            {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cerr << "Input broke\n";
-                break;
-            }
+            int index = inputHandler.getInt("Which entry do you want to open?(print '0' if none)");
+
             JournalEntry *selected = manager.getEntryByViewIndex(index);
             if (selected == nullptr)
             {
@@ -232,43 +201,10 @@ int main()
             {
                 continue;
             }
-            int index;
-            SortType type;
-            std::string input;
-            std::cout << "How do you want to sort the entries?\n";
-            std::cin >> input;
-            if (std::cin.fail())
-            {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cerr << "Input broke\n";
-                break;
-            }
 
-            manager.toLower(input);
-            if (input == "date")
-            {
-                type = SortType::BY_DATE;
-            }
-            else if (input == "id")
-            {
-                type = SortType::BY_ID;
-            }
-            else
-            {
-                std::cout << "Wrong formation of sorting\n";
-                break;
-            }
-            std::cout << "Choose which entry to delete: ";
-            manager.printWithIndex(type);
-            std::cin >> index;
-            if (std::cin.fail())
-            {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cerr << "Input broke\n";
-                break;
-            }
+            manager.printWithIndex(inputHandler.getSortType());
+            int index = inputHandler.getInt("Choose which entry to delete: ");
+
             JournalEntry *selected = manager.getEntryByViewIndex(index);
             if (selected == nullptr)
             {
@@ -284,42 +220,10 @@ int main()
             {
                 continue;
             }
-            int index;
-            SortType type;
-            std::string input;
-            std::cout << "How do you want to sort the entries?\n";
-            std::cin >> input;
-            if (std::cin.fail())
-            {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cerr << "Input broke\n";
-                break;
-            }
-            manager.toLower(input);
-            if (input == "date")
-            {
-                type = SortType::BY_DATE;
-            }
-            else if (input == "id")
-            {
-                type = SortType::BY_ID;
-            }
-            else
-            {
-                std::cout << "Wrong formation of sorting\n";
-                break;
-            }
-            std::cout << "Which entry code you want to see?";
-            manager.printWithIndex(type);
-            std::cin >> index;
-            if (std::cin.fail())
-            {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cerr << "Input broke\n";
-                break;
-            }
+
+            manager.printWithIndex(inputHandler.getSortType());
+            int index = inputHandler.getInt("Which entry code do you want to see?");
+
             JournalEntry *selected = manager.getEntryByViewIndex(index);
             if (selected == nullptr)
             {

@@ -42,7 +42,7 @@ void JournalManager::printWithIndex(SortType type)
                   { return a->getID() < b->getID(); });
     }
     std::cout << "Found " << displayView.size() << " entries!\n"
-              << codecount << "of them contains code!\n";
+              << codecount << " of them contains code!\n";
 
     for (size_t i = 0; i < displayView.size(); ++i)
     {
@@ -290,4 +290,151 @@ JournalEntry *JournalManager::getEntryByViewIndex(int userIndex)
     }
 
     return displayView[userIndex - 1];
+}
+void JournalManager::printWithCode(SortType type)
+{
+
+    if (entries.empty())
+    {
+        std::cerr << "Error: Entry file is empty.\n";
+        return;
+    }
+    displayView.clear();
+    for (auto &entry : entries)
+    {
+        displayView.push_back(&entry);
+    }
+    long codecount = std::count_if(entries.begin(), entries.end(), [](const JournalEntry &e)
+                                   { return e.getPath() != CONSTS::NO_CODE_PATH; });
+    if (type == SortType::BY_DATE)
+    {
+        std::sort(displayView.begin(), displayView.end(), [](const JournalEntry *a, const JournalEntry *b)
+                  { return a->getDate() < b->getDate(); });
+    }
+    else if (type == SortType::BY_ID)
+    {
+        std::sort(displayView.begin(), displayView.end(), [](const JournalEntry *a, const JournalEntry *b)
+                  { return a->getID() < b->getID(); });
+    }
+    std::cout << "Found " << codecount << " entries!\n";
+
+    for (size_t i = 0; i < displayView.size(); ++i)
+    {
+        if (displayView[i]->getPath() != CONSTS::NO_CODE_PATH)
+        {
+            std::cout << "[" << i + 1 << "] " << displayView[i]->getDate()
+                      << " | " << displayView[i]->getTitle() << "\n";
+        }
+    }
+}
+bool JournalManager::codeCheck()
+{
+    return std::any_of(entries.begin(), entries.end(), [](const JournalEntry &e)
+                       { return !e.getPath().empty(); });
+}
+void JournalManager::editEntry(int index)
+{
+    JournalManager manager;
+    if (index < 1 || index > static_cast<int>(entries.size()))
+    {
+        std::cerr << "Error: Invalid entry index!\n";
+        return;
+    }
+
+    JournalEntry &entry = entries.at(index - 1);
+
+    std::cout << "\n=== EDITING ENTRY #" << index << " ===\n";
+    std::cout << "Current details:\n";
+    std::cout << "  Date: " << entry.getDate() << "\n";
+    std::cout << "  Title: " << entry.getTitle() << "\n";
+    std::cout << "  Text: " << entry.getText() << "\n";
+    std::cout << "  Code path: " << entry.getPath() << "\n\n";
+
+    std::cout << "What would you like to edit?\n";
+    std::cout << "1. Title\n";
+    std::cout << "2. Text\n";
+    std::cout << "3. Date\n";
+    std::cout << "4. Code path\n";
+    std::cout << "5. Cancel\n";
+    std::cout << "Choice: ";
+
+    int choice;
+    std::cin >> choice;
+
+    if (std::cin.fail())
+    {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cerr << "Error: Invalid input\n";
+        return;
+    }
+
+    std::cin.ignore();
+
+    std::string newValue;
+
+    switch (choice)
+    {
+    case 1:
+        std::cout << "Enter new title: ";
+        std::getline(std::cin, newValue);
+        entry.setTitle(newValue);
+        std::cout << "Title updated!\n";
+        break;
+
+    case 2:
+        std::cout << "Enter new text: ";
+        std::getline(std::cin, newValue);
+        entry.setText(newValue);
+        std::cout << "Text updated!\n";
+        break;
+
+    case 3:
+        std::cout << "Enter new date (YYYY-MM-DD): ";
+        std::getline(std::cin, newValue);
+
+        if (!isValidDate(newValue))
+        {
+            std::cerr << "Error: Invalid date format\n";
+            return;
+        }
+
+        entry.setDate(newValue);
+        std::cout << "Date updated!\n";
+        break;
+
+    case 4:
+        std::cout << "Enter new code path (or 'none'): ";
+        std::getline(std::cin, newValue);
+
+        if (newValue != "none" && newValue != CONSTS::NO_CODE_PATH)
+        {
+            if (!isSafePath(newValue))
+            {
+                std::cerr << "Error: Invalid or unsafe path\n";
+                return;
+            }
+        }
+
+        entry.setPath(newValue);
+        std::cout << "Code path updated!\n";
+        break;
+
+    case 5:
+        std::cout << "Edit cancelled\n";
+        return;
+
+    default:
+        std::cerr << "Error: Invalid choice\n";
+        return;
+    }
+
+    std::cout << "\nSave changes? (y/n): ";
+    char save;
+    std::cin >> save;
+
+    if (save == 'y' || save == 'Y')
+    {
+        manager.saveData(CONSTS::DEFAULT_DATA_FILE);
+    }
 }

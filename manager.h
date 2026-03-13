@@ -36,4 +36,7 @@ public:
     bool isSafePath(std::string_view pathStr) const;
     void refreshView(SortType type) const;
     JournalEntry *getEntryByViewIndex(int userIndex);
+    void printWithCode(SortType type);
+    bool codeCheck();
+    void editEntry(int index);
 };

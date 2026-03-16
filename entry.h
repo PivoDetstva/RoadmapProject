@@ -33,8 +33,8 @@ public:
     std::string getTitle() const;
     std::string getText() const;
     std::string getPath() const;
-    void setDate(std::string d);
-    void setTitle(std::string t);
-    void setText(std::string a);
-    void setPath(std::string p);
+    void setDate(const std::string &d);
+    void setTitle(const std::string &t);
+    void setText(const std::string &a);
+    void setPath(const std::string &p);
 };

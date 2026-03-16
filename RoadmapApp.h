@@ -231,9 +231,16 @@ public:
                 manager.printWithIndex(inputHandler.getSortType());
 
                 int index = inputHandler.getInt("\nEnter entry number to edit: ");
+                JournalEntry *selected = manager.getEntryByViewIndex(index);
+
+                if (selected == nullptr)
+                {
+                    std::cout << "Invalid index!\n";
+                    break;
+                }
                 try
                 {
-                    manager.editEntry(index);
+                    manager.editEntry(selected->getID());
                 }
                 catch (const std::out_of_range &e)
                 {

@@ -5,6 +5,6 @@ The application was made using modern c++17 features like std::filesystem for a 
 
 For compiling I am using CMake. 
 
-The project now is in v8.0. I see a lot of crucial and eye-bleeding things, but I am really glad how architecture slowly builds up. I have a lot of new methods, an ID validation, editing entries, sorting them, opening logic and else. There is a lot of work to do to make it look really cool, but the most important that for now it works, and I am heading to make it look and work the coolest way in v1.0.
+The project now is in v0.8.5. Bugs fixed, file SRP coming next with some new features. I have a lot of new methods, an ID validation, editing entries, sorting them, opening logic and else. There is a lot of work to do to make it look really cool, but the most important that for now it works, and I am heading to make it look and work the coolest way in v1.0.
 
 Made by me in 2026. 

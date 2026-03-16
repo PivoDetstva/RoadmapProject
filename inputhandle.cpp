@@ -24,7 +24,23 @@ int InputHandle::getInt(std::string prompt)
         return input;
     }
 }
-
+char InputHandle::getChar(std::string prompt)
+{
+    while (true)
+    {
+        std::cout << prompt << std::endl;
+        char input;
+        std::cin >> input;
+        if (std::cin.fail())
+        {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cerr << "Error! \n";
+            continue;
+        }
+        return input;
+    }
+}
 std::string InputHandle::getString(std::string prompt)
 {
     while (true)

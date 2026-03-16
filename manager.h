@@ -22,6 +22,7 @@ public:
     void saveData(const std::string &filename);
     void addEntry(const JournalEntry &entry);
     void loadData();
+    void pressEnterToContinue() const;
     void searchByDate(std::string_view queryDate) const;
     void deleteEntry(int index);
     void printWithIndex(SortType type);

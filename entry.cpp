@@ -18,7 +18,6 @@ void JournalEntry::deserialize(std::string data)
     {
         try
         {
-            // Пытаемся превратить в число только если в строке есть хоть одна цифра
             if (!tempID.empty() && std::isdigit(tempID[0]))
             {
                 id = std::stoi(tempID);
@@ -26,7 +25,7 @@ void JournalEntry::deserialize(std::string data)
         }
         catch (...)
         {
-            id = 0; // Если случилась беда, просто ставим 0, но не падаем
+            id = 0;
         }
     }
 
@@ -58,19 +57,19 @@ std::string JournalEntry::getPath() const
 
     return path;
 }
-void JournalEntry::setDate(std::string d)
+void JournalEntry::setDate(const std::string &d)
 {
-    d = date;
+    date = d;
 }
-void JournalEntry::setTitle(std::string t)
+void JournalEntry::setTitle(const std::string &t)
 {
-    t = title;
+    title = t;
 }
-void JournalEntry::setText(std::string a)
+void JournalEntry::setText(const std::string &a)
 {
-    a = text;
+    text = a;
 }
-void JournalEntry::setPath(std::string p)
+void JournalEntry::setPath(const std::string &p)
 {
-    p = path;
+    path = p;
 }

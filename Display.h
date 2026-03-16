@@ -1,0 +1,1 @@
+// a file for a future method refactoring. To fix a SRP with a manager. I am just not into mood for refactoring things when it's 4 AM xd

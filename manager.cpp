@@ -16,6 +16,12 @@ void JournalManager::loadData()
     Storage storageTool;
     this->entries = storageTool.loadFromFile(CONSTS::filename);
 }
+void JournalManager::pressEnterToContinue() const
+{
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cout << "\nPress Enter to continue...";
+    std::cin.get();
+}
 void JournalManager::printWithIndex(SortType type)
 {
 
@@ -69,17 +75,23 @@ void JournalManager::searchByDate(std::string_view queryDate) const
     }
     if (!found)
         std::cout << "Not found\n";
+    pressEnterToContinue();
 }
 void JournalManager::deleteEntry(int index)
 {
-    if (index < 1 || index > entries.size())
+    auto it = std::find_if(entries.begin(), entries.end(),
+                           [index](const JournalEntry &e)
+                           { return e.getID() == index; });
+
+    if (it == entries.end())
     {
-        std::cout << "Invalid index!\n";
+        std::cerr << "Error: Entry not found!\n";
         return;
     }
 
-    entries.erase(entries.begin() + index - 1);
+    entries.erase(it);
     std::cout << "Deleted entry #" << index << std::endl;
+    pressEnterToContinue();
 }
 std::string JournalManager::trim(const std::string &s)
 {
@@ -117,15 +129,12 @@ void JournalManager::searchByContent(const std::string &keyword) const
     {
         std::string title = entry.getTitle();
         std::string text = entry.getText();
-        auto it = std::search(
-            title.begin(), title.end(),
-            lowerKeyword.begin(), lowerKeyword.end(),
-            [](unsigned char ch1, unsigned char ch2)
-            {
-                return std::tolower(ch1) == ch2;
-            });
-        auto it2 = std::search(text.begin(), text.end(),
-                               lowerKeyword.begin(), lowerKeyword.end(),
+        auto it = std::search(title.begin(), title.end(), lowerKeyword.begin(), lowerKeyword.end(),
+                              [](unsigned char ch1, unsigned char ch2)
+                              {
+                                  return std::tolower(ch1) == ch2;
+                              });
+        auto it2 = std::search(text.begin(), text.end(), lowerKeyword.begin(), lowerKeyword.end(),
                                [](unsigned char ch1, unsigned char ch2)
                                {
                                    return std::tolower(ch1) == ch2;
@@ -138,16 +147,22 @@ void JournalManager::searchByContent(const std::string &keyword) const
     }
     if (!found)
         std::cout << "Nothing found.\n";
+    pressEnterToContinue();
 }
 void JournalManager::previewCode(int index) const
 {
-    if (index < 1 || index > entries.size())
+    auto it = std::find_if(entries.begin(), entries.end(),
+                           [index](const JournalEntry &e)
+                           { return e.getID() == index; });
+
+    if (it == entries.end())
     {
-        std::cout << "Invalid index!\n";
+        std::cerr << "Error: Entry not found!\n";
         return;
     }
 
-    std::string path = entries[index].getPath();
+    std::string path = it->getPath();
+
     if (path.empty())
     {
         std::cout << "User haven't provide any file" << std::endl;
@@ -172,16 +187,22 @@ void JournalManager::previewCode(int index) const
         std::cout << line << std::endl;
     }
     std::cout << "\n--- END OF CODE ---\n";
+    pressEnterToContinue();
 }
 
 void JournalManager::openEntry(int index) const
 {
-    if (index < 1 || index > entries.size())
+    auto it = std::find_if(entries.begin(), entries.end(),
+                           [index](const JournalEntry &e)
+                           { return e.getID() == index; });
+
+    if (it == entries.end())
     {
-        std::cerr << "Wrong index!\n";
+        std::cerr << "Error: Entry not found!\n";
         return;
     }
-    const auto &entry = entries.at(index - 1);
+
+    const JournalEntry &entry = *it;
     std::cout << "\t\t" << entry.getTitle()
               << "\n\n"
               << entry.getText()
@@ -190,16 +211,9 @@ void JournalManager::openEntry(int index) const
     const auto &path = entry.getPath();
     if (path.length() > 1 && path != CONSTS::NO_CODE_PATH)
     {
-        char choice;
-        std::cout << "\nAttached code found. Open file? (y/n): ";
-        std::cin >> choice;
-        if (std::cin.fail())
-        {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cerr << "Input broke\n";
-            return;
-        }
+        InputHandle input;
+
+        char choice = input.getChar("\nAttached code found. Open file? (y/n): ");
         if (choice == 'y' || choice == 'Y')
         {
             if (isSafePath(entry.getPath()))
@@ -216,9 +230,11 @@ void JournalManager::openEntry(int index) const
         }
         else if (choice == 'n' || choice == 'N')
         {
+            pressEnterToContinue();
             std::cout << "Going back to menu...\n";
         }
     }
+    pressEnterToContinue();
 }
 bool JournalManager::openCheck()
 {
@@ -326,6 +342,7 @@ void JournalManager::printWithCode(SortType type)
                       << " | " << displayView[i]->getTitle() << "\n";
         }
     }
+    pressEnterToContinue();
 }
 bool JournalManager::codeCheck()
 {
@@ -334,43 +351,27 @@ bool JournalManager::codeCheck()
 }
 void JournalManager::editEntry(int index)
 {
-    JournalManager manager;
-    if (index < 1 || index > static_cast<int>(entries.size()))
+    InputHandle inputhandler;
+    auto it = std::find_if(entries.begin(), entries.end(),
+                           [index](const JournalEntry &e)
+                           { return e.getID() == index; });
+
+    if (it == entries.end())
     {
-        std::cerr << "Error: Invalid entry index!\n";
+        std::cerr << "Error: Entry not found!\n";
         return;
     }
 
-    JournalEntry &entry = entries.at(index - 1);
+    JournalEntry &entry = *it;
+    std::cout << "\n=== EDITING ENTRY #" << index << " ===\n"
+              << "Current details:\n"
+              << "  Date: " << entry.getDate() << "\n"
+              << "  Title: " << entry.getTitle() << "\n"
+              << "  Text: " << entry.getText() << "\n"
+              << "  Code path: " << entry.getPath() << "\n\n";
 
-    std::cout << "\n=== EDITING ENTRY #" << index << " ===\n";
-    std::cout << "Current details:\n";
-    std::cout << "  Date: " << entry.getDate() << "\n";
-    std::cout << "  Title: " << entry.getTitle() << "\n";
-    std::cout << "  Text: " << entry.getText() << "\n";
-    std::cout << "  Code path: " << entry.getPath() << "\n\n";
-
-    std::cout << "What would you like to edit?\n";
-    std::cout << "1. Title\n";
-    std::cout << "2. Text\n";
-    std::cout << "3. Date\n";
-    std::cout << "4. Code path\n";
-    std::cout << "5. Cancel\n";
-    std::cout << "Choice: ";
-
-    int choice;
-    std::cin >> choice;
-
-    if (std::cin.fail())
-    {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cerr << "Error: Invalid input\n";
-        return;
-    }
-
-    std::cin.ignore();
-
+    int choice = inputhandler.getInt("What would you like to edit?\n1. Title\n2. Text\n3. Date\n4. Code path\n5. Cancel\nChoice: ");
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::string newValue;
 
     switch (choice)
@@ -435,6 +436,7 @@ void JournalManager::editEntry(int index)
 
     if (save == 'y' || save == 'Y')
     {
-        manager.saveData(CONSTS::DEFAULT_DATA_FILE);
+        saveData(CONSTS::DEFAULT_DATA_FILE);
     }
+    pressEnterToContinue();
 }

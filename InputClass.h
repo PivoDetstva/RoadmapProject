@@ -18,4 +18,5 @@ public:
     int getInt(std::string prompt);
     SortType getSortType();
     std::string getString(std::string prompt);
+    char getChar(std::string prompt);
 };

@@ -24,7 +24,7 @@ int InputHandle::getInt(std::string prompt)
         return input;
     }
 }
-char InputHandle::getChar(std::string prompt)
+char InputHandle::getChar(std::string prompt) const
 {
     while (true)
     {

@@ -11,4 +11,5 @@ add_executable(RoadmapProject
     manager.cpp
     storage.cpp
     inputhandle.cpp
+    Display.cpp
 )

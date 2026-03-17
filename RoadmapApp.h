@@ -135,7 +135,7 @@ public:
             case show:
             {
 
-                manager.printWithIndex(inputHandler.getSortType());
+                manager.printAll(inputHandler.getSortType());
                 if (manager.openCheck())
                 {
                     continue;
@@ -191,7 +191,7 @@ public:
                     continue;
                 }
 
-                manager.printWithIndex(inputHandler.getSortType());
+                manager.printAll(inputHandler.getSortType());
                 int index = inputHandler.getInt("Choose which entry to delete: ");
 
                 JournalEntry *selected = manager.getEntryByViewIndex(index);
@@ -203,18 +203,18 @@ public:
                 manager.deleteEntry(selected->getID());
                 break;
             }
-            case preview:
+            case preview: // it works but kinda broken, needed to be fixed.
             {
                 if (manager.openCheck())
                 {
                     continue;
                 }
-                if (manager.codeCheck())
+                if (!manager.codeCheck())
                 {
                     std::cout << "There is no entries with attached code...\n";
                     break;
                 }
-                manager.printWithCode(inputHandler.getSortType());
+                manager.printWithCode(inputHandler.getSortType()); // I need to get sorting here good somehow.
                 int index = inputHandler.getInt("Which entry code do you want to see?");
 
                 JournalEntry *selected = manager.getEntryByViewIndex(index);
@@ -228,7 +228,7 @@ public:
             }
             case edit:
             {
-                manager.printWithIndex(inputHandler.getSortType());
+                manager.printAll(inputHandler.getSortType());
 
                 int index = inputHandler.getInt("\nEnter entry number to edit: ");
                 JournalEntry *selected = manager.getEntryByViewIndex(index);

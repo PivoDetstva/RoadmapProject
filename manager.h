@@ -8,7 +8,7 @@
 #include <string_view>
 #include "entry.h"
 #include "InputClass.h"
-
+#include "Display.h"
 #pragma once
 
 class JournalManager
@@ -16,16 +16,17 @@ class JournalManager
 private:
     std::vector<JournalEntry> entries;
     std::vector<JournalEntry *> displayView;
+    InputHandle inputHandler;
+    Display display;
 
 public:
     JournalManager() {};
     void saveData(const std::string &filename);
     void addEntry(const JournalEntry &entry);
     void loadData();
-    void pressEnterToContinue() const;
     void searchByDate(std::string_view queryDate) const;
     void deleteEntry(int index);
-    void printWithIndex(SortType type);
+    void printAll(SortType type);
     std::string trim(const std::string &s);
     bool isValidDate(const std::string &date);
     bool isValidPath(std::string_view pathStr);

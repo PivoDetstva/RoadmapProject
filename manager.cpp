@@ -8,7 +8,7 @@ void JournalManager::addEntry(const JournalEntry &entry)
 
 void JournalManager::saveData(const std::string &filename)
 {
-    Storage storage;
+    Storage storage; // maybe I should reconsider making those objects as a private pole
     storage.saveToFile(entries, CONSTS::filename);
 }
 void JournalManager::loadData()
@@ -16,49 +16,9 @@ void JournalManager::loadData()
     Storage storageTool;
     this->entries = storageTool.loadFromFile(CONSTS::filename);
 }
-void JournalManager::pressEnterToContinue() const
+void JournalManager::printAll(SortType type)
 {
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    std::cout << "\nPress Enter to continue...";
-    std::cin.get();
-}
-void JournalManager::printWithIndex(SortType type)
-{
-
-    if (entries.empty())
-    {
-        std::cerr << "Error: Entry file is empty.\n";
-        return;
-    }
-    displayView.clear();
-    for (auto &entry : entries)
-    {
-        displayView.push_back(&entry);
-    }
-    long codecount = std::count_if(entries.begin(), entries.end(), [](const JournalEntry &e)
-                                   { return e.getPath() != CONSTS::NO_CODE_PATH; });
-    if (type == SortType::BY_DATE)
-    {
-        std::sort(displayView.begin(), displayView.end(), [](const JournalEntry *a, const JournalEntry *b)
-                  { return a->getDate() < b->getDate(); });
-    }
-    else if (type == SortType::BY_ID)
-    {
-        std::sort(displayView.begin(), displayView.end(), [](const JournalEntry *a, const JournalEntry *b)
-                  { return a->getID() < b->getID(); });
-    }
-    std::cout << "Found " << displayView.size() << " entries!\n"
-              << codecount << " of them contains code!\n";
-
-    for (size_t i = 0; i < displayView.size(); ++i)
-    {
-        std::cout << "[" << i + 1 << "] " << displayView[i]->getDate()
-                  << " | " << displayView[i]->getTitle() << "\n";
-        if (displayView[i]->getPath() != CONSTS::NO_CODE_PATH)
-        {
-            std::cout << " [Contains code]";
-        }
-    }
+    display.ShowEntryList(entries, displayView, type); // I HAVE NO IDEA WHY IT WORKS
 }
 
 void JournalManager::searchByDate(std::string_view queryDate) const
@@ -75,7 +35,7 @@ void JournalManager::searchByDate(std::string_view queryDate) const
     }
     if (!found)
         std::cout << "Not found\n";
-    pressEnterToContinue();
+    display.pressEnterToContinue();
 }
 void JournalManager::deleteEntry(int index)
 {
@@ -91,7 +51,7 @@ void JournalManager::deleteEntry(int index)
 
     entries.erase(it);
     std::cout << "Deleted entry #" << index << std::endl;
-    pressEnterToContinue();
+    display.pressEnterToContinue();
 }
 std::string JournalManager::trim(const std::string &s)
 {
@@ -119,11 +79,11 @@ bool JournalManager::isValidPath(std::string_view pathStr)
 }
 void JournalManager::searchByContent(const std::string &keyword) const
 {
-    InputHandle inputHandle;
+
     bool found = false;
 
     std::string lowerKeyword = keyword;
-    inputHandle.toLower(lowerKeyword);
+    inputHandler.toLower(lowerKeyword);
 
     for (const auto &entry : entries)
     {
@@ -147,7 +107,7 @@ void JournalManager::searchByContent(const std::string &keyword) const
     }
     if (!found)
         std::cout << "Nothing found.\n";
-    pressEnterToContinue();
+    display.pressEnterToContinue();
 }
 void JournalManager::previewCode(int index) const
 {
@@ -160,34 +120,8 @@ void JournalManager::previewCode(int index) const
         std::cerr << "Error: Entry not found!\n";
         return;
     }
-
-    std::string path = it->getPath();
-
-    if (path.empty())
-    {
-        std::cout << "User haven't provide any file" << std::endl;
-        return;
-    }
-    if (!std::filesystem::exists(path))
-    {
-        std::cerr << "Error: FIle wasn't found on " << path << "\n";
-        return;
-    }
-
-    std::ifstream codefile(path);
-    if (!codefile.is_open())
-    {
-        std::cerr << "Error opening the file codefile\n";
-        return;
-    }
-    std::cout << "\n--- START OF CODE (" << path << ") ---\n";
-    std::string line;
-    while (std::getline(codefile, line))
-    {
-        std::cout << line << std::endl;
-    }
-    std::cout << "\n--- END OF CODE ---\n";
-    pressEnterToContinue();
+    Display display;
+    display.openCode(it);
 }
 
 void JournalManager::openEntry(int index) const
@@ -202,39 +136,8 @@ void JournalManager::openEntry(int index) const
         return;
     }
 
-    const JournalEntry &entry = *it;
-    std::cout << "\t\t" << entry.getTitle()
-              << "\n\n"
-              << entry.getText()
-              << "\n"
-              << "Created on " << entry.getDate();
-    const auto &path = entry.getPath();
-    if (path.length() > 1 && path != CONSTS::NO_CODE_PATH)
-    {
-        InputHandle input;
-
-        char choice = input.getChar("\nAttached code found. Open file? (y/n): ");
-        if (choice == 'y' || choice == 'Y')
-        {
-            if (isSafePath(entry.getPath()))
-            {
-                std::string command = "xdg-open '" + entry.getPath() + "'";
-                // add the apostrophe reading exception later
-                std::system(command.c_str());
-            }
-            else
-            {
-                std::cout << "File can be malicious, returning to menu...\n";
-                return;
-            }
-        }
-        else if (choice == 'n' || choice == 'N')
-        {
-            pressEnterToContinue();
-            std::cout << "Going back to menu...\n";
-        }
-    }
-    pressEnterToContinue();
+    Display display;
+    display.openGuts(it);
 }
 bool JournalManager::openCheck()
 {
@@ -307,7 +210,7 @@ JournalEntry *JournalManager::getEntryByViewIndex(int userIndex)
 
     return displayView[userIndex - 1];
 }
-void JournalManager::printWithCode(SortType type)
+void JournalManager::printWithCode(SortType type) // todo: make it with good ID's and refactor
 {
 
     if (entries.empty())
@@ -342,7 +245,7 @@ void JournalManager::printWithCode(SortType type)
                       << " | " << displayView[i]->getTitle() << "\n";
         }
     }
-    pressEnterToContinue();
+    display.pressEnterToContinue();
 }
 bool JournalManager::codeCheck()
 {
@@ -351,7 +254,7 @@ bool JournalManager::codeCheck()
 }
 void JournalManager::editEntry(int index)
 {
-    InputHandle inputhandler;
+
     auto it = std::find_if(entries.begin(), entries.end(),
                            [index](const JournalEntry &e)
                            { return e.getID() == index; });
@@ -370,7 +273,7 @@ void JournalManager::editEntry(int index)
               << "  Text: " << entry.getText() << "\n"
               << "  Code path: " << entry.getPath() << "\n\n";
 
-    int choice = inputhandler.getInt("What would you like to edit?\n1. Title\n2. Text\n3. Date\n4. Code path\n5. Cancel\nChoice: ");
+    int choice = inputHandler.getInt("What would you like to edit?\n1. Title\n2. Text\n3. Date\n4. Code path\n5. Cancel\nChoice: ");
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::string newValue;
 
@@ -438,5 +341,5 @@ void JournalManager::editEntry(int index)
     {
         saveData(CONSTS::DEFAULT_DATA_FILE);
     }
-    pressEnterToContinue();
+    display.pressEnterToContinue();
 }

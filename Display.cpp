@@ -1,10 +1,29 @@
 #include "Display.h"
-#include "manager.h"
 void Display::pressEnterToContinue() const
 {
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::cout << "\nPress Enter to continue...";
     std::cin.get();
+}
+std::string Display::escapeForShell(const std::string &path) const
+{
+    std::string escaped = "'"; // Start with opening quote
+
+    for (char c : path)
+    {
+        if (c == '\'')
+        { // If we find a single quote in path
+            // Close quote, add escaped quote, reopen quote
+            escaped += "'\\''";
+        }
+        else
+        {
+            escaped += c;
+        }
+    }
+
+    escaped += "'"; // Closing quote
+    return escaped;
 }
 void Display::ShowEntryList(std::vector<JournalEntry> &entries, std::vector<JournalEntry *> &displayView, SortType type)
 {
@@ -37,16 +56,16 @@ void Display::ShowEntryList(std::vector<JournalEntry> &entries, std::vector<Jour
     for (size_t i = 0; i < displayView.size(); ++i)
     {
         std::cout << "[" << i + 1 << "] " << displayView[i]->getDate()
-                  << " | " << displayView[i]->getTitle() << "\n";
+                  << " | " << displayView[i]->getTitle();
         if (displayView[i]->getPath() != CONSTS::NO_CODE_PATH)
         {
             std::cout << " [Contains code]\n";
         }
+        std::cout << "\n";
     }
 }
 void Display::openGuts(const std::vector<JournalEntry>::const_iterator &iterator)
 {
-    JournalManager manager;
     const JournalEntry &entry = *iterator;
     std::cout << "\t\t" << entry.getTitle()
               << "\n\n"
@@ -60,10 +79,9 @@ void Display::openGuts(const std::vector<JournalEntry>::const_iterator &iterator
         char choice = inputHandler.getChar("\nAttached code found. Open file? (y/n): ");
         if (choice == 'y' || choice == 'Y')
         {
-            if (manager.isSafePath(entry.getPath())) // DON'T FORGET TO CHANGE TO VALIDATION
+            if (validator.isSafePath(entry.getPath()))
             {
-                std::string command = "xdg-open '" + entry.getPath() + "'";
-                // add the apostrophe reading exception later
+                std::string command = "xdg-open '" + escapeForShell(entry.getPath());
                 std::system(command.c_str());
             }
             else
@@ -109,4 +127,46 @@ void Display::openCode(const std::vector<JournalEntry>::const_iterator &iterator
     }
     std::cout << "\n--- END OF CODE ---\n";
     pressEnterToContinue();
+}
+void Display::ShowCodeList(std::vector<JournalEntry> &entries, std::vector<JournalEntry *> &displayView, SortType type)
+{
+
+    if (entries.empty())
+    {
+        std::cerr << "Error: Entry file is empty.\n";
+        return;
+    }
+    displayView.clear();
+    for (auto &entry : entries)
+    {
+        if (entry.getPath() != CONSTS::NO_CODE_PATH)
+        {
+
+            displayView.push_back(&entry);
+        }
+    }
+    if (displayView.empty())
+    {
+        std::cout << "No entries with code found!\n";
+        return;
+    }
+    long codecount = std::count_if(entries.begin(), entries.end(), [](const JournalEntry &e)
+                                   { return e.getPath() != CONSTS::NO_CODE_PATH; });
+    if (type == SortType::BY_DATE)
+    {
+        std::sort(displayView.begin(), displayView.end(), [](const JournalEntry *a, const JournalEntry *b)
+                  { return a->getDate() < b->getDate(); });
+    }
+    else if (type == SortType::BY_ID)
+    {
+        std::sort(displayView.begin(), displayView.end(), [](const JournalEntry *a, const JournalEntry *b)
+                  { return a->getID() < b->getID(); });
+    }
+    std::cout << "Found " << codecount << " entries!\n";
+
+    for (size_t i = 0; i < displayView.size(); ++i)
+    {
+        std::cout << "[" << i + 1 << "] " << displayView[i]->getDate()
+                  << " | " << displayView[i]->getTitle() << "\n";
+    }
 }

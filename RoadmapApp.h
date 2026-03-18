@@ -3,6 +3,7 @@
 #include "Constants.h"
 #include "storage.h"
 #include "InputClass.h"
+#include "validation.h"
 
 enum enums
 {
@@ -20,6 +21,7 @@ class RoadmapApp
 {
 private:
     JournalManager manager;
+    Validator validator;
     InputHandle inputHandler;
     bool isRunning;
 
@@ -56,7 +58,7 @@ public:
             {
                 int id;
                 std::string date, title, args, path;
-
+                // clearly can be done with inputhandle
                 std::cin.ignore();
 
                 std::cout << "Make an entry! Write date, arguments and path, to divide it use commas.\n";
@@ -64,8 +66,8 @@ public:
                 {
                     std::cout << "Let's start with a date, use YYYY-MM-DD: ";
                     std::getline(std::cin, date);
-                    date = manager.trim(date);
-                    if (manager.isValidDate(date) == false)
+                    date = validator.trim(date);
+                    if (validator.isValidDate(date) == false)
                     {
                         std::cout << COLOR::RED << "Invalid date format! Use YYYY-MM-DD" << COLOR::RESET << "\n";
                     }
@@ -79,7 +81,7 @@ public:
                 {
                     std::cout << "Now tell what is entry all about: ";
                     std::getline(std::cin, title);
-                    title = manager.trim(title);
+                    title = validator.trim(title);
                     if (title.empty())
                     {
                         std::cout << COLOR::RED << "You haven't provided any text :|" << COLOR::RESET << "\n";
@@ -93,7 +95,7 @@ public:
                 {
                     std::cout << "And entry text: ";
                     std::getline(std::cin, args);
-                    args = manager.trim(args);
+                    args = validator.trim(args);
                     if (args.empty())
                     {
                         std::cout << COLOR::RED << "You haven't provided any text :|" << COLOR::RESET << "\n";
@@ -109,14 +111,14 @@ public:
                     std::cout << "If you want to save the file enter his path, "
                               << "If this is just text entry, enter 'none'\n";
                     std::getline(std::cin, path);
-                    path = manager.trim(path);
+                    path = validator.trim(path);
                     if (path == CONSTS::NO_CODE_PATH)
                     {
                         std::cout << COLOR::GREEN << "Text entry saved\n"
                                   << COLOR::RESET;
                         break;
                     }
-                    if (manager.isValidPath(path) == false)
+                    if (validator.isValidPath(path) == false)
                     {
                         std::cout << COLOR::RED << "Invalid path!" << COLOR::RESET << "\n";
                     }
@@ -164,7 +166,7 @@ public:
                 std::cout << "Enter a date or any word of the entry: ";
 
                 std::getline(std::cin, input);
-                input = manager.trim(input);
+                input = validator.trim(input);
                 for (char ch : input)
                 {
                     if (ch >= 48 && ch <= 57 || ch == 45)
@@ -203,7 +205,7 @@ public:
                 manager.deleteEntry(selected->getID());
                 break;
             }
-            case preview: // it works but kinda broken, needed to be fixed.
+            case preview: // make into a loop logic
             {
                 if (manager.openCheck())
                 {

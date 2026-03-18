@@ -21,20 +21,9 @@ void JournalManager::printAll(SortType type)
     display.ShowEntryList(entries, displayView, type); // I HAVE NO IDEA WHY IT WORKS
 }
 
-void JournalManager::searchByDate(std::string_view queryDate) const
+void JournalManager::searchByDate(std::string_view queryDate)
 {
-    bool found = false;
-    for (const auto &entry : entries)
-    {
-        if (entry.getDate().find(queryDate) != std::string::npos)
-        {
-            std::cout << entry.getDate() << " | " << entry.getTitle() << std::endl;
-            found = true;
-            std::cout << "Entry found\n";
-        }
-    }
-    if (!found)
-        std::cout << "Not found\n";
+    fifind.searchDate(queryDate, entries);
     display.pressEnterToContinue();
 }
 void JournalManager::deleteEntry(int index)
@@ -53,60 +42,9 @@ void JournalManager::deleteEntry(int index)
     std::cout << "Deleted entry #" << index << std::endl;
     display.pressEnterToContinue();
 }
-std::string JournalManager::trim(const std::string &s)
+void JournalManager::searchByContent(const std::string &keyword)
 {
-    size_t first = s.find_first_not_of(" \t\n\r");
-    if (first == std::string::npos)
-        return "";
-    size_t last = s.find_last_not_of(" \t\n\r");
-    return s.substr(first, (last - first + 1));
-}
-bool JournalManager::isValidDate(const std::string &date)
-{
-
-    std::istringstream ss{date};
-    std::chrono::year_month_day ymd;
-
-    if (!(ss >> std::chrono::parse("%Y-%m-%d", ymd)))
-    {
-        return false;
-    }
-    return ymd.ok();
-}
-bool JournalManager::isValidPath(std::string_view pathStr)
-{
-    return std::filesystem::exists(pathStr);
-}
-void JournalManager::searchByContent(const std::string &keyword) const
-{
-
-    bool found = false;
-
-    std::string lowerKeyword = keyword;
-    inputHandler.toLower(lowerKeyword);
-
-    for (const auto &entry : entries)
-    {
-        std::string title = entry.getTitle();
-        std::string text = entry.getText();
-        auto it = std::search(title.begin(), title.end(), lowerKeyword.begin(), lowerKeyword.end(),
-                              [](unsigned char ch1, unsigned char ch2)
-                              {
-                                  return std::tolower(ch1) == ch2;
-                              });
-        auto it2 = std::search(text.begin(), text.end(), lowerKeyword.begin(), lowerKeyword.end(),
-                               [](unsigned char ch1, unsigned char ch2)
-                               {
-                                   return std::tolower(ch1) == ch2;
-                               });
-        if (it != title.end() || it2 != text.end())
-        {
-            std::cout << "Found: " << entry.getDate() << " | " << entry.getTitle() << "\n";
-            found = true;
-        }
-    }
-    if (!found)
-        std::cout << "Nothing found.\n";
+    fifind.searchContent(keyword, entries);
     display.pressEnterToContinue();
 }
 void JournalManager::previewCode(int index) const
@@ -149,41 +87,6 @@ bool JournalManager::openCheck()
     else
         return false;
 }
-bool JournalManager::isSafePath(std::string_view pathStr) const
-{
-    try
-    {
-        std::filesystem::path filePath(pathStr);
-
-        if (!std::filesystem::exists(filePath))
-        {
-            std::cerr << "Error: File does not exist\n";
-            return false;
-        }
-
-        if (!std::filesystem::is_regular_file(filePath))
-        {
-            std::cerr << "Error: Not a regular file\n";
-            return false;
-        }
-
-        std::string ext = filePath.extension().string();
-        if (ext != ".cpp" && ext != ".h" && ext != ".txt" && ext != ".md")
-        {
-            std::cerr << "Error: Unsupported file type\n";
-            return false;
-        } // maybe later extend the variety of acceptable formats, like bash or else
-
-        std::filesystem::path canonicalPath = std::filesystem::canonical(filePath);
-
-        return true;
-    }
-    catch (const std::filesystem::filesystem_error &e)
-    {
-        std::cerr << "Error: Filesystem error - " << e.what() << "\n";
-        return false;
-    }
-}
 int JournalManager::getNextID() const
 {
     if (entries.empty())
@@ -212,40 +115,7 @@ JournalEntry *JournalManager::getEntryByViewIndex(int userIndex)
 }
 void JournalManager::printWithCode(SortType type) // todo: make it with good ID's and refactor
 {
-
-    if (entries.empty())
-    {
-        std::cerr << "Error: Entry file is empty.\n";
-        return;
-    }
-    displayView.clear();
-    for (auto &entry : entries)
-    {
-        displayView.push_back(&entry);
-    }
-    long codecount = std::count_if(entries.begin(), entries.end(), [](const JournalEntry &e)
-                                   { return e.getPath() != CONSTS::NO_CODE_PATH; });
-    if (type == SortType::BY_DATE)
-    {
-        std::sort(displayView.begin(), displayView.end(), [](const JournalEntry *a, const JournalEntry *b)
-                  { return a->getDate() < b->getDate(); });
-    }
-    else if (type == SortType::BY_ID)
-    {
-        std::sort(displayView.begin(), displayView.end(), [](const JournalEntry *a, const JournalEntry *b)
-                  { return a->getID() < b->getID(); });
-    }
-    std::cout << "Found " << codecount << " entries!\n";
-
-    for (size_t i = 0; i < displayView.size(); ++i)
-    {
-        if (displayView[i]->getPath() != CONSTS::NO_CODE_PATH)
-        {
-            std::cout << "[" << i + 1 << "] " << displayView[i]->getDate()
-                      << " | " << displayView[i]->getTitle() << "\n";
-        }
-    }
-    display.pressEnterToContinue();
+    display.ShowCodeList(entries, codeView, type);
 }
 bool JournalManager::codeCheck()
 {
@@ -297,7 +167,7 @@ void JournalManager::editEntry(int index)
         std::cout << "Enter new date (YYYY-MM-DD): ";
         std::getline(std::cin, newValue);
 
-        if (!isValidDate(newValue))
+        if (!validator.isValidDate(newValue))
         {
             std::cerr << "Error: Invalid date format\n";
             return;
@@ -313,7 +183,7 @@ void JournalManager::editEntry(int index)
 
         if (newValue != "none" && newValue != CONSTS::NO_CODE_PATH)
         {
-            if (!isSafePath(newValue))
+            if (!validator.isSafePath(newValue))
             {
                 std::cerr << "Error: Invalid or unsafe path\n";
                 return;

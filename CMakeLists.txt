@@ -12,4 +12,6 @@ add_executable(RoadmapProject
     storage.cpp
     inputhandle.cpp
     Display.cpp
+    validation.cpp
+    SearchEngine.cpp
 )

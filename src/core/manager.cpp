@@ -8,17 +8,15 @@ void JournalManager::addEntry(const JournalEntry &entry)
 
 void JournalManager::saveData(const std::string &filename)
 {
-    Storage storage; // maybe I should reconsider making those objects as a private pole
     storage.saveToFile(entries, CONSTS::filename);
 }
 void JournalManager::loadData()
 {
-    Storage storageTool;
-    this->entries = storageTool.loadFromFile(CONSTS::filename);
+    this->entries = storage.loadFromFile(CONSTS::filename);
 }
 void JournalManager::printAll(SortType type)
 {
-    display.ShowEntryList(entries, displayView, type); // I HAVE NO IDEA WHY IT WORKS
+    display.showEntryList(entries, displayView, type); // I HAVE NO IDEA WHY IT WORKS
 }
 
 void JournalManager::searchByDate(std::string_view queryDate)
@@ -58,7 +56,6 @@ void JournalManager::previewCode(int index) const
         std::cerr << "Error: Entry not found!\n";
         return;
     }
-    Display display;
     display.openCode(it);
 }
 
@@ -73,8 +70,6 @@ void JournalManager::openEntry(int index) const
         std::cerr << "Error: Entry not found!\n";
         return;
     }
-
-    Display display;
     display.openGuts(it);
 }
 bool JournalManager::openCheck()
@@ -115,7 +110,7 @@ JournalEntry *JournalManager::getEntryByViewIndex(int userIndex)
 }
 void JournalManager::printWithCode(SortType type) // todo: make it with good ID's and refactor
 {
-    display.ShowCodeList(entries, codeView, type);
+    display.showCodeList(entries, codeView, type);
 }
 bool JournalManager::codeCheck()
 {
@@ -211,5 +206,45 @@ void JournalManager::editEntry(int index)
     {
         saveData(CONSTS::DEFAULT_DATA_FILE);
     }
+    display.pressEnterToContinue();
+}
+void JournalManager::showStatistics() const
+{
+    if (entries.empty())
+    {
+        std::cout << "No entries yet.\n";
+        return;
+    }
+    int withCode = std::count_if(entries.begin(), entries.end(),
+                                 [](const auto &e)
+                                 { return e.getPath() != CONSTS::NO_CODE_PATH; });
+
+    std::cout << "\n=== JOURNAL STATISTICS ===\n";
+    std::cout << "Total Entries: " << entries.size() << "\n";
+    std::cout << "  With code: " << withCode << "\n";
+    std::cout << "  Text only: " << (entries.size() - withCode) << "\n\n";
+
+    auto [oldest, newest] = std::minmax_element(entries.begin(), entries.end(),
+                                                [](const auto &a, const auto &b)
+                                                { return a.getDate() < b.getDate(); });
+
+    std::cout << "Date Range: " << oldest->getDate()
+              << " to " << newest->getDate() << "\n\n";
+
+    std::map<std::string, int> monthCounts;
+    for (const auto &entry : entries)
+    {
+        monthCounts[entry.getDate().substr(0, 7)]++;
+    }
+
+    std::cout << "Entries by Month:\n";
+    for (const auto &[month, count] : monthCounts)
+    {
+        std::cout << "  " << month << ": ";
+        for (int i = 0; i < count; ++i)
+            std::cout << "█";
+        std::cout << " (" << count << ")\n";
+    }
+
     display.pressEnterToContinue();
 }

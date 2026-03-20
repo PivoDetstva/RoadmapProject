@@ -5,6 +5,6 @@ The application was made using modern c++17 features like std::filesystem for a 
 
 For compiling I am using CMake. 
 
-The project now is in v0.8.9. I don't feel it's a fully v0.9 yet. Even more bugs fixed, file SRP managed, but I need to refactor main switch. There is a lot of work to do to make it look really cool, but the most important that for now it works, and I am heading to make it look and work the coolest way in v1.0.
+The project now is in v0.9. Almost ready. Some crucial fixes left, maybe some other things but bigger features will be kept for future, but I think the future versions will be the biggest. Added new statistics method with interesting idea I saw on practice, wanted to implement it in my project. A lot of file management and refactoring with main switch case was done. The first great refactoring is almost over. 
 
 Made by me in 2026. 

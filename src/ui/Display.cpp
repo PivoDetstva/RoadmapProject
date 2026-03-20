@@ -1,7 +1,10 @@
 #include "Display.h"
 void Display::pressEnterToContinue() const
 {
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    if (std::cin.rdbuf()->in_avail() > 0)
+    {
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
     std::cout << "\nPress Enter to continue...";
     std::cin.get();
 }
@@ -25,7 +28,7 @@ std::string Display::escapeForShell(const std::string &path) const
     escaped += "'"; // Closing quote
     return escaped;
 }
-void Display::ShowEntryList(std::vector<JournalEntry> &entries, std::vector<JournalEntry *> &displayView, SortType type)
+void Display::showEntryList(std::vector<JournalEntry> &entries, std::vector<JournalEntry *> &displayView, SortType type)
 {
 
     if (entries.empty())
@@ -64,7 +67,7 @@ void Display::ShowEntryList(std::vector<JournalEntry> &entries, std::vector<Jour
         std::cout << "\n";
     }
 }
-void Display::openGuts(const std::vector<JournalEntry>::const_iterator &iterator)
+void Display::openGuts(const std::vector<JournalEntry>::const_iterator &iterator) const
 {
     const JournalEntry &entry = *iterator;
     std::cout << "\t\t" << entry.getTitle()
@@ -98,7 +101,7 @@ void Display::openGuts(const std::vector<JournalEntry>::const_iterator &iterator
     }
     pressEnterToContinue();
 }
-void Display::openCode(const std::vector<JournalEntry>::const_iterator &iterator)
+void Display::openCode(const std::vector<JournalEntry>::const_iterator &iterator) const
 {
     std::string path = iterator->getPath();
 
@@ -128,7 +131,7 @@ void Display::openCode(const std::vector<JournalEntry>::const_iterator &iterator
     std::cout << "\n--- END OF CODE ---\n";
     pressEnterToContinue();
 }
-void Display::ShowCodeList(std::vector<JournalEntry> &entries, std::vector<JournalEntry *> &displayView, SortType type)
+void Display::showCodeList(std::vector<JournalEntry> &entries, std::vector<JournalEntry *> &displayView, SortType type)
 {
 
     if (entries.empty())

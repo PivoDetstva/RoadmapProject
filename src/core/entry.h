@@ -17,13 +17,13 @@ private:
 public:
     JournalEntry() {};
 
-    JournalEntry(int newID, std::string newDate, std::string newTitle, std::string newText, std::string newPath)
+    JournalEntry(int id, std::string date, std::string title, std::string text, std::string path)
+        : id(id),
+          date(std::move(date)),
+          title(std::move(title)),
+          text(std::move(text)),
+          path(std::move(path))
     {
-        id = newID;
-        date = newDate;
-        title = newTitle;
-        text = newText;
-        path = newPath;
     }
 
     std::string serialize() const;

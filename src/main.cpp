@@ -2,7 +2,7 @@
 
 int main()
 {
-    RoadmapApp app;
+    Menu app;
     app.run();
     return 0;
 }

@@ -6,12 +6,22 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 add_executable(RoadmapProject
-    main.cpp 
-    entry.cpp
-    manager.cpp
-    storage.cpp
-    inputhandle.cpp
-    Display.cpp
-    validation.cpp
-    SearchEngine.cpp
+   src/main.cpp
+    src/core/entry.cpp
+    src/core/manager.cpp
+    src/io/storage.cpp
+    src/io/inputhandle.cpp
+    src/search/SearchEngine.cpp
+    src/ui/Display.cpp
+    src/ui/RoadmapApp.cpp
+    src/ui/menu.cpp
+    src/valids/validation.cpp
+)
+
+target_include_directories(RoadmapProject PRIVATE 
+    ${CMAKE_SOURCE_DIR}/src/core
+    ${CMAKE_SOURCE_DIR}/src/io
+    ${CMAKE_SOURCE_DIR}/src/search
+    ${CMAKE_SOURCE_DIR}/src/ui
+    ${CMAKE_SOURCE_DIR}/src/valids
 )

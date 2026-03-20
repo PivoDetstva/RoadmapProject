@@ -3,9 +3,11 @@
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <map>
 #include <string_view>
 #include "validation.h"
 #include "entry.h"
+#include "storage.h"
 #include "InputClass.h"
 #include "Display.h"
 #include "SearchEngine.h"
@@ -21,6 +23,7 @@ private:
     Display display;
     Validator validator;
     Finder fifind;
+    Storage storage;
 
 public:
     JournalManager() {};
@@ -39,4 +42,5 @@ public:
     void printWithCode(SortType type);
     bool codeCheck();
     void editEntry(int index);
+    void showStatistics() const;
 };

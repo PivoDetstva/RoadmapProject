@@ -39,8 +39,10 @@ public:
     bool openCheck();
     int getNextID() const;
     JournalEntry *getEntryByViewIndex(int userIndex);
+    JournalEntry *getEntryByCodeViewIndex(int userIndex);
     void printWithCode(SortType type);
     bool codeCheck();
     void editEntry(int index);
     void showStatistics() const;
+    void exportMarkdown(const std::string &filename);
 };

@@ -81,3 +81,110 @@ std::string Storage::fromHex(const std::string &input)
     }
     return output;
 }
+std::string Storage::escapeMarkdown(const std::string &text)
+{
+    std::string result;
+    result.reserve(text.size() * 1.2);
+    for (char c : text)
+    {
+        switch (c)
+        {
+        case '*':
+        case '_':
+        case '#':
+        case '[':
+        case ']':
+        case '(':
+        case ')':
+        case '`':
+        case '\\':
+            result += '\\'; // Add escape character
+            break;
+        }
+        result += c;
+    }
+    return result;
+}
+bool Storage::exportToMarkdown(const std::vector<JournalEntry> &entries,
+                               const std::string &outputFile)
+{
+    std::ofstream mdFile(outputFile);
+    if (!mdFile.is_open())
+    {
+        std::cerr << "Error to open export file\n";
+        return false;
+    }
+
+    auto getCurrentDate = []()
+    {
+        auto now = std::chrono::system_clock::now();
+        auto time = std::chrono::system_clock::to_time_t(now);
+        std::ostringstream oss;
+        oss << std::put_time(std::localtime(&time), "%Y-%m-%d %H:%M:%S");
+        return oss.str();
+    };
+
+    mdFile << "# My Programming Diary\n\n";
+    mdFile << "Exported on: " << getCurrentDate() << "_\n\n";
+    mdFile << "---\n\n";
+
+    std::vector<const JournalEntry *> sortedEntries;
+    for (const auto &entry : entries)
+    {
+        sortedEntries.push_back(&entry);
+    }
+    std::sort(sortedEntries.begin(), sortedEntries.end(), [](const JournalEntry *a, const JournalEntry *b)
+              { return a->getDate() < b->getDate(); });
+
+    for (const auto &entry : sortedEntries)
+    {
+        mdFile << "## " << escapeMarkdown(entry->getTitle()) << "\n\n";
+
+        mdFile << "**Date** " << entry->getDate() << " \n";
+        mdFile << "**ID** " << entry->getID() << " \n";
+        if (entry->getPath() != CONSTS::NO_CODE_PATH)
+        {
+            mdFile << "**File with code:** `" << entry->getPath() << "\n\n";
+            /*Ai recommendation, test later
+                 mdFile << "**Attached Code:**\n\n";
+
+        std::ifstream codeFile(entry->getPath());
+        if (codeFile.is_open())
+        {
+            // Determine language from extension
+            std::string ext = std::filesystem::path(entry->getPath())
+                              .extension().string();
+            std::string lang = (ext == ".cpp" || ext == ".h") ? "cpp" : "text";
+
+            mdFile << "```" << lang << "\n";
+
+            std::string line;
+            while (std::getline(codeFile, line))
+            {
+                mdFile << line << "\n";
+            }
+
+            mdFile << "```\n\n";
+        }
+        else
+        {
+            mdFile << "_Code file not found: " << entry->getPath() << "_\n\n";
+        }
+    }*/
+        }
+        mdFile << "\n";
+
+        mdFile << escapeMarkdown(entry->getText()) << "\n\n";
+
+        mdFile << "---\n\n";
+    }
+
+    mdFile << "End of the journal. Total entries: " << entries.size() << "_\n";
+
+    mdFile.close();
+
+    std::cout << COLOR::GREEN << "✓Exported " << COLOR::RESET << entries.size()
+              << COLOR::GREEN << " entries to " << COLOR::RESET << outputFile << "\n";
+
+    return true;
+}

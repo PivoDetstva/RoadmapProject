@@ -5,6 +5,6 @@ The application was made using modern c++17 features like std::filesystem for a 
 
 For compiling I am using CMake. 
 
-The project now is in v0.9. Almost ready. Some crucial fixes left, maybe some other things but bigger features will be kept for future, but I think the future versions will be the biggest. Added new statistics method with interesting idea I saw on practice, wanted to implement it in my project. A lot of file management and refactoring with main switch case was done. The first great refactoring is almost over. 
+The project now is in v0.9.2 Added new feature. Export with .md file. Being able to insert already made journals, I will contribute my md file later with my programer diary later. But it needs to be polished as well. Started some UI refactoring as well, a few new features coming up before v1.0.
 
 Made by me in 2026. 

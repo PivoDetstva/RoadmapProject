@@ -54,6 +54,11 @@ void Menu::run()
                 manager.showStatistics();
                 break;
             }
+            case exportmd:
+            {
+                handleExportMarkdown();
+                break;
+            }
             }
         }
         std::this_thread::sleep_for(std::chrono::seconds(1));

@@ -16,7 +16,8 @@ enum enums
     dont = 4,
     preview = 5,
     edit = 6,
-    stats = 7, // next key feature will be export = 8
+    stats = 7,
+    exportmd = 8,
     sexit = 0
 };
 
@@ -38,4 +39,5 @@ public:
     void handleDelete();
     void handlePreviewCode();
     void handleEdit();
+    void handleExportMarkdown();
 };

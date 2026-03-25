@@ -37,7 +37,7 @@ void JournalManager::deleteEntry(int index)
     }
 
     entries.erase(it);
-    std::cout << "Deleted entry #" << index << std::endl;
+    std::cout << COLOR::GREEN << "✓ Successfully deleted entry #" << COLOR::RESET << index << std::endl;
     display.pressEnterToContinue();
 }
 void JournalManager::searchByContent(const std::string &keyword)
@@ -107,6 +107,15 @@ JournalEntry *JournalManager::getEntryByViewIndex(int userIndex)
     }
 
     return displayView[userIndex - 1];
+}
+JournalEntry *JournalManager::getEntryByCodeViewIndex(int userIndex)
+{
+    if (userIndex < 1 || userIndex > (int)codeView.size())
+    {
+        return nullptr;
+    }
+
+    return codeView[userIndex - 1];
 }
 void JournalManager::printWithCode(SortType type) // todo: make it with good ID's and refactor
 {
@@ -247,4 +256,16 @@ void JournalManager::showStatistics() const
     }
 
     display.pressEnterToContinue();
+}
+void JournalManager::exportMarkdown(const std::string &filename)
+{
+    if (entries.empty())
+    {
+        std::cout << "Nothing to export!\n";
+        return;
+    }
+    if (storage.exportToMarkdown(entries, filename))
+    {
+        display.pressEnterToContinue();
+    }
 }

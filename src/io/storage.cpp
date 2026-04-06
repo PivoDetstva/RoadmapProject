@@ -98,7 +98,7 @@ std::string Storage::escapeMarkdown(const std::string &text)
         case ')':
         case '`':
         case '\\':
-            result += '\\'; // Add escape character
+            result += '\\';
             break;
         }
         result += c;
@@ -144,7 +144,7 @@ bool Storage::exportToMarkdown(const std::vector<JournalEntry> &entries,
         mdFile << "**ID** " << entry->getID() << " \n";
         if (entry->getPath() != CONSTS::NO_CODE_PATH)
         {
-            mdFile << "**File with code:** `" << entry->getPath() << "\n\n";
+            mdFile << "**File with code:** `" << entry->getPath() << "`  \n";
             /*Ai recommendation, test later
                  mdFile << "**Attached Code:**\n\n";
 
@@ -179,12 +179,89 @@ bool Storage::exportToMarkdown(const std::vector<JournalEntry> &entries,
         mdFile << "---\n\n";
     }
 
-    mdFile << "End of the journal. Total entries: " << entries.size() << "_\n";
+    mdFile << "End of the journal. Total entries: " << entries.size() << "\n";
 
     mdFile.close();
 
-    std::cout << COLOR::GREEN << "✓Exported " << COLOR::RESET << entries.size()
+    std::cout << COLOR::GREEN << "\n✓Exported " << COLOR::RESET << entries.size()
               << COLOR::GREEN << " entries to " << COLOR::RESET << outputFile << "\n";
 
+    return true;
+}
+int Storage::getNextIDFromEntries(const std::vector<JournalEntry> &entries)
+{
+    if (entries.empty())
+        return 1;
+
+    int maxID = 0;
+    for (const auto &e : entries)
+    {
+        if (e.getID() > maxID)
+            maxID = e.getID();
+    }
+    return maxID + 1;
+}
+bool Storage::importFromMarkdown(std::vector<JournalEntry> &entries, const std::string &inputFile)
+{
+    std::ifstream mdFile(inputFile);
+    if (!mdFile.is_open())
+    {
+        std::cerr << COLOR::RED << "✗Error opening the file" << COLOR::RESET << "\n";
+        return false;
+    }
+    std::string line;
+    std::string currentTitle, currentDate, currentText, currentPath;
+    bool inEntry = false;
+
+    while (std::getline(mdFile, line))
+    {
+        if (line.find("#My Programming Journal") == 0 || line.find("---") == 0 || line.empty())
+        {
+            continue;
+        }
+        if (line.find("## ") == 0)
+        {
+            if (inEntry && !currentTitle.empty())
+            {
+                int id = getNextIDFromEntries(entries);
+                entries.emplace_back(id, currentDate, currentTitle, currentText, currentPath);
+            }
+            currentTitle = line.substr(3);
+            currentText.clear();
+            currentPath = CONSTS::NO_CODE_PATH;
+            inEntry = true;
+            continue;
+        }
+        if (line.find("**Date:**") == 0)
+        {
+            currentDate = line.substr(10);
+            continue;
+        }
+        if (line.find("**FIle with code:**"))
+        {
+            auto start = line.find('`') + 1;
+            auto end = line.rfind('`');
+            if (start != std::string::npos && end != std::string::npos)
+            {
+                currentPath = line.substr(start, end - start);
+            }
+            continue;
+        }
+        if (inEntry)
+        {
+            if (!currentText.empty())
+            {
+                currentText += "\n";
+            }
+            currentText += line;
+        }
+    }
+    if (inEntry && !currentTitle.empty())
+    {
+        int id = getNextIDFromEntries(entries);
+        entries.emplace_back(id, currentDate, currentTitle, currentText, currentPath);
+    }
+    mdFile.close();
+    std::cout << COLOR::GREEN << "✓ Imported" << entries.size() << "entries" << COLOR::RESET << "\n";
     return true;
 }

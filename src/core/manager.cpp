@@ -16,7 +16,7 @@ void JournalManager::loadData()
 }
 void JournalManager::printAll(SortType type)
 {
-    display.showEntryList(entries, displayView, type); // I HAVE NO IDEA WHY IT WORKS
+    display.showEntryList(entries, displayView, type);
 }
 
 void JournalManager::searchByDate(std::string_view queryDate)
@@ -32,7 +32,7 @@ void JournalManager::deleteEntry(int index)
 
     if (it == entries.end())
     {
-        std::cerr << "Error: Entry not found!\n";
+        std::cerr << COLOR::RED << "✗Error: Entry not found!" << COLOR::RESET << "\n";
         return;
     }
 
@@ -53,7 +53,7 @@ void JournalManager::previewCode(int index) const
 
     if (it == entries.end())
     {
-        std::cerr << "Error: Entry not found!\n";
+        std::cerr << COLOR::RED << "✗Error: Entry not found!" << COLOR::RESET << "\n";
         return;
     }
     display.openCode(it);
@@ -67,7 +67,7 @@ void JournalManager::openEntry(int index) const
 
     if (it == entries.end())
     {
-        std::cerr << "Error: Entry not found!\n";
+        std::cerr << COLOR::RED << "✗Error: Entry not found!" << COLOR::RESET << "\n";
         return;
     }
     display.openGuts(it);
@@ -76,7 +76,8 @@ bool JournalManager::openCheck()
 {
     if (entries.empty())
     {
-        std::cout << "Entry list are empty!\n";
+        std::cerr << COLOR::RED << "\n✗Entry list are empty!" << COLOR::RESET << "\n";
+        display.pressEnterToContinue();
         return true;
     }
     else
@@ -135,7 +136,7 @@ void JournalManager::editEntry(int index)
 
     if (it == entries.end())
     {
-        std::cerr << "Error: Entry not found!\n";
+        std::cerr << COLOR::RED << "✗Error: Entry not found!" << COLOR::RESET << "\n";
         return;
     }
 
@@ -203,7 +204,7 @@ void JournalManager::editEntry(int index)
         return;
 
     default:
-        std::cerr << "Error: Invalid choice\n";
+        std::cerr << COLOR::RED << "✗Error: Invalid choice" << COLOR::RESET << "\n";
         return;
     }
 
@@ -261,10 +262,17 @@ void JournalManager::exportMarkdown(const std::string &filename)
 {
     if (entries.empty())
     {
-        std::cout << "Nothing to export!\n";
+        std::cerr << COLOR::RED << "✗Nothing to export!" << COLOR::RESET << "\n";
         return;
     }
     if (storage.exportToMarkdown(entries, filename))
+    {
+        display.pressEnterToContinue();
+    }
+}
+void JournalManager::importMarkdown(const std::string &filename)
+{
+    if (storage.importFromMarkdown(entries, filename))
     {
         display.pressEnterToContinue();
     }

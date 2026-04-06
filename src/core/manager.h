@@ -45,4 +45,5 @@ public:
     void editEntry(int index);
     void showStatistics() const;
     void exportMarkdown(const std::string &filename);
+    void importMarkdown(const std::string &filename);
 };

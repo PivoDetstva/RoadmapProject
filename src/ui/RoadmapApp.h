@@ -18,6 +18,7 @@ enum enums
     edit = 6,
     stats = 7,
     exportmd = 8,
+    importmd = 9,
     sexit = 0
 };
 
@@ -40,4 +41,5 @@ public:
     void handlePreviewCode();
     void handleEdit();
     void handleExportMarkdown();
+    void handleImportMarkdown();
 };

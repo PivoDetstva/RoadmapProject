@@ -12,6 +12,7 @@ void Menu::displayMainMenu()
               << "6. Edit already existing entries.\n"
               << "7. Show brief statistics\n"
               << "8. Export your journal\n"
+              << "9. Import journal from markdown file\n"
               << "If you want to exit the app press '0'\n"
               << "===============================\n"
               << "Choice: ";
@@ -94,16 +95,16 @@ void Menu::handleAddEntry()
     manager.addEntry(newEntry);
 
     std::cout << COLOR::BLUE << "Added new entry!" << COLOR::RESET << "\n";
+    display.pressEnterToContinue();
 }
 void Menu::handleViewEntries()
 {
 
-    manager.printAll(inputHandler.getSortType());
     if (manager.openCheck())
     {
-        std::cout << "✗Error, opencheck hasn't passed\n";
         return;
     }
+    manager.printAll(inputHandler.getSortType());
     int index = inputHandler.getInt("Which entry do you want to open?(press '0' to come back to menu)");
 
     if (index == 0)
@@ -159,7 +160,6 @@ void Menu::handleDelete()
 {
     if (manager.openCheck())
     {
-        std::cout << "didn't passed the opencheck\n";
         return;
     }
 
@@ -178,7 +178,6 @@ void Menu::handlePreviewCode()
 {
     if (manager.openCheck())
     {
-        std::cout << "openerror\n";
         return;
     }
     if (!manager.codeCheck())
@@ -222,13 +221,9 @@ void Menu::handleExportMarkdown()
 {
     if (manager.openCheck())
     {
-        std::cout << "Open check not passed\n";
         return;
     }
-    std::string filename;
-    std::cout << "Export filename(make up a file name, e.g., journal.md): ";
-    std::getline(std::cin, filename);
-
+    std::string filename = inputHandler.getString("Export filename (make a name, e.g., journal.md): ");
     if (filename.empty())
     {
         filename = CONSTS::STANDART_MARKDOWN_FILE;
@@ -240,4 +235,16 @@ void Menu::handleExportMarkdown()
     }
 
     manager.exportMarkdown(filename);
+}
+void Menu::handleImportMarkdown()
+{
+    std::string filename = inputHandler.getString("Import from File: ");
+
+    if (!std::filesystem::exists(filename))
+    {
+        std::cerr << COLOR::RED << "✗ File not found" << COLOR::RESET << "\n";
+        return;
+    }
+
+    manager.importMarkdown(filename);
 }

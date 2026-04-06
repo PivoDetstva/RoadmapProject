@@ -5,6 +5,6 @@ The application was made using modern c++17 features like std::filesystem for a 
 
 For compiling I am using CMake. 
 
-The project now is in v0.9.2 Added new feature. Export with .md file. Being able to insert already made journals, I will contribute my md file later with my programer diary later. But it needs to be polished as well. Started some UI refactoring as well, a few new features coming up before v1.0.
+The project now is in v0.9.4 Added new feature. Previous was export to md format, so you can share your entries, now it's import from md, so you can import other journals to the program, cause export kinda doesn't makes sense without import huh. Some UI designes are changed, but only half way. I need to change a lot of things, maybe even remade some core methods to the new style. 
 
 Made by me in 2026. 

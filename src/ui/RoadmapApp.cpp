@@ -59,6 +59,11 @@ void Menu::run()
                 handleExportMarkdown();
                 break;
             }
+            case importmd:
+            {
+                handleImportMarkdown();
+                break;
+            }
             }
         }
         std::this_thread::sleep_for(std::chrono::seconds(1));

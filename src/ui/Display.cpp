@@ -173,3 +173,18 @@ void Display::showCodeList(std::vector<JournalEntry> &entries, std::vector<Journ
                   << " | " << displayView[i]->getTitle() << "\n";
     }
 }
+
+/*Got an idea how to make template function
+display.showFiltered(entries,
+    [](const auto& e) { return e.getPath() != CONSTS::NO_CODE_PATH; },
+    SortType::BY_DATE);
+
+// Show only entries from 2024:
+display.showFiltered(entries,
+    [](const auto& e) { return e.getDate().find("2024") == 0; },
+    SortType::BY_DATE);
+
+// Show only entries with "C++" in title:
+display.showFiltered(entries,
+    [](const auto& e) { return e.getTitle().find("C++") != string::npos; },
+    SortType::BY_ID);*/

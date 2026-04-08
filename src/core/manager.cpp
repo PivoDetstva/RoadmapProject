@@ -118,7 +118,7 @@ JournalEntry *JournalManager::getEntryByCodeViewIndex(int userIndex)
 
     return codeView[userIndex - 1];
 }
-void JournalManager::printWithCode(SortType type) // todo: make it with good ID's and refactor
+void JournalManager::printWithCode(SortType type)
 {
     display.showCodeList(entries, codeView, type);
 }
@@ -158,14 +158,14 @@ void JournalManager::editEntry(int index)
         std::cout << "Enter new title: ";
         std::getline(std::cin, newValue);
         entry.setTitle(newValue);
-        std::cout << "Title updated!\n";
+        std::cout << COLOR::GREEN << "✓ Title updated!" << COLOR::RESET << "\n";
         break;
 
     case 2:
         std::cout << "Enter new text: ";
         std::getline(std::cin, newValue);
         entry.setText(newValue);
-        std::cout << "Text updated!\n";
+        std::cout << COLOR::GREEN << "✓ Text updated!" << COLOR::RESET << "\n";
         break;
 
     case 3:
@@ -174,12 +174,12 @@ void JournalManager::editEntry(int index)
 
         if (!validator.isValidDate(newValue))
         {
-            std::cerr << "Error: Invalid date format\n";
+            std::cerr << COLOR::RED << "✗Error: Invalid date format" << COLOR::RESET << "\n";
             return;
         }
 
         entry.setDate(newValue);
-        std::cout << "Date updated!\n";
+        std::cout << COLOR::GREEN << "✓ Date updated!" << COLOR::RESET << "\n";
         break;
 
     case 4:
@@ -190,17 +190,17 @@ void JournalManager::editEntry(int index)
         {
             if (!validator.isSafePath(newValue))
             {
-                std::cerr << "Error: Invalid or unsafe path\n";
+                std::cerr << COLOR::RED << "✗ Error: Invalid or unsafe path" << COLOR::RESET << "\n";
                 return;
             }
         }
 
         entry.setPath(newValue);
-        std::cout << "Code path updated!\n";
+        std::cout << COLOR::GREEN << "✓ Code path updated!" << COLOR::RESET << "\n";
         break;
 
     case 5:
-        std::cout << "Edit cancelled\n";
+        std::cout << COLOR::YELLOW << "Edit cancelled" << COLOR::RESET << "\n";
         return;
 
     default:
@@ -208,7 +208,7 @@ void JournalManager::editEntry(int index)
         return;
     }
 
-    std::cout << "\nSave changes? (y/n): ";
+    std::cout << COLOR::YELLOW << "\nSave changes? (y/n): " << COLOR::RESET;
     char save;
     std::cin >> save;
 
@@ -222,7 +222,7 @@ void JournalManager::showStatistics() const
 {
     if (entries.empty())
     {
-        std::cout << "No entries yet.\n";
+        std::cout << COLOR::RED << "No entries yet." << COLOR::RESET << "\n";
         return;
     }
     int withCode = std::count_if(entries.begin(), entries.end(),

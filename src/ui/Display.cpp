@@ -5,18 +5,18 @@ void Display::pressEnterToContinue() const
     {
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
-    std::cout << "\nPress Enter to continue...";
+    std::cout << "\nPress Enter to continue..."; // how dan I do it to only accept enter?
     std::cin.get();
 }
 std::string Display::escapeForShell(const std::string &path) const
 {
-    std::string escaped = "'"; // Start with opening quote
+    std::string escaped = "'";
 
     for (char c : path)
     {
         if (c == '\'')
-        { // If we find a single quote in path
-            // Close quote, add escaped quote, reopen quote
+        {
+
             escaped += "'\\''";
         }
         else
@@ -25,7 +25,7 @@ std::string Display::escapeForShell(const std::string &path) const
         }
     }
 
-    escaped += "'"; // Closing quote
+    escaped += "'";
     return escaped;
 }
 void Display::showEntryList(std::vector<JournalEntry> &entries, std::vector<JournalEntry *> &displayView, SortType type)
@@ -33,7 +33,7 @@ void Display::showEntryList(std::vector<JournalEntry> &entries, std::vector<Jour
 
     if (entries.empty())
     {
-        std::cerr << "Error: Entry file is empty.\n";
+        std::cerr << COLOR::RED << "✗ Error: Entry file is empty." << COLOR::RESET << "\n";
         return;
     }
     displayView.clear();
@@ -89,14 +89,14 @@ void Display::openGuts(const std::vector<JournalEntry>::const_iterator &iterator
             }
             else
             {
-                std::cout << "File can be malicious, returning to menu...\n";
+                std::cout << COLOR::RED << "✗File can be malicious, returning to menu..." << COLOR::RESET << "\n";
                 return;
             }
         }
         else if (choice == 'n' || choice == 'N')
         {
-            pressEnterToContinue();
             std::cout << "Going back to menu...\n";
+            pressEnterToContinue();
         }
     }
     pressEnterToContinue();
@@ -107,19 +107,19 @@ void Display::openCode(const std::vector<JournalEntry>::const_iterator &iterator
 
     if (path.empty())
     {
-        std::cout << "User haven't provide any file" << std::endl;
+        std::cerr << COLOR::RED << "✗User haven't provide any file" << COLOR::RESET << "\n";
         return;
     }
     if (!std::filesystem::exists(path))
     {
-        std::cerr << "Error: FIle wasn't found on " << path << "\n";
+        std::cerr << COLOR::RED << "✗Error: FIle wasn't found on " << path << COLOR::RESET << "\n";
         return;
     }
 
     std::ifstream codefile(path);
     if (!codefile.is_open())
     {
-        std::cerr << "Error opening the file codefile\n";
+        std::cerr << COLOR::RED << "✗Error opening the file codefile" << COLOR::RESET << "\n";
         return;
     }
     std::cout << "\n--- START OF CODE (" << path << ") ---\n";
@@ -129,14 +129,13 @@ void Display::openCode(const std::vector<JournalEntry>::const_iterator &iterator
         std::cout << line << std::endl;
     }
     std::cout << "\n--- END OF CODE ---\n";
-    pressEnterToContinue();
 }
 void Display::showCodeList(std::vector<JournalEntry> &entries, std::vector<JournalEntry *> &displayView, SortType type)
 {
 
     if (entries.empty())
     {
-        std::cerr << "Error: Entry file is empty.\n";
+        std::cerr << COLOR::RED << "✗Error: Entry file is empty." << COLOR::RESET << "\n";
         return;
     }
     displayView.clear();
@@ -150,7 +149,7 @@ void Display::showCodeList(std::vector<JournalEntry> &entries, std::vector<Journ
     }
     if (displayView.empty())
     {
-        std::cout << "No entries with code found!\n";
+        std::cerr << COLOR::RED << "✗No entries with code found!" << COLOR::RESET << "\n";
         return;
     }
     long codecount = std::count_if(entries.begin(), entries.end(), [](const JournalEntry &e)
@@ -175,6 +174,8 @@ void Display::showCodeList(std::vector<JournalEntry> &entries, std::vector<Journ
 }
 
 /*Got an idea how to make template function
+Also would be really cool for a search refactoring, now I would like to make it in a cycle,
+but would be better to make a templated search. and refactor all the method.
 display.showFiltered(entries,
     [](const auto& e) { return e.getPath() != CONSTS::NO_CODE_PATH; },
     SortType::BY_DATE);

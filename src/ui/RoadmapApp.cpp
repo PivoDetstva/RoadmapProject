@@ -9,7 +9,7 @@ void Menu::run()
             displayMainMenu();
             int switchinput = inputHandler.getInt("What do you choose?");
 
-            if (switchinput == sexit)
+            if (switchinput == EXIT)
             {
                 manager.saveData(CONSTS::filename);
                 std::cout << "Goodbye!\n";
@@ -19,49 +19,56 @@ void Menu::run()
 
             switch (switchinput)
             {
-            case add:
+            case ADD:
             {
                 handleAddEntry();
                 break;
             }
-            case show:
+            case LIST:
             {
                 handleViewEntries();
                 break;
             }
-            case gofind:
+            case FIND:
             {
                 handleSearch();
                 break;
             }
-            case dont:
+            case DELETE:
             {
                 handleDelete();
                 break;
             }
-            case preview:
+            case PREVIEW:
             {
                 handlePreviewCode();
                 break;
             }
-            case edit:
+            case EDIT:
             {
                 handleEdit();
                 break;
             }
-            case stats:
+            case STATISTICS:
             {
                 manager.showStatistics();
+                std::cin.ignore();
+                display.pressEnterToContinue();
                 break;
             }
-            case exportmd:
+            case EXPORT:
             {
                 handleExportMarkdown();
                 break;
             }
-            case importmd:
+            case IMPORT:
             {
                 handleImportMarkdown();
+                break;
+            }
+            case HELP:
+            {
+                showHelp();
                 break;
             }
             }

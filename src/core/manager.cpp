@@ -38,7 +38,6 @@ void JournalManager::deleteEntry(int index)
 
     entries.erase(it);
     std::cout << COLOR::GREEN << "✓ Successfully deleted entry #" << COLOR::RESET << index << std::endl;
-    display.pressEnterToContinue();
 }
 void JournalManager::searchByContent(const std::string &keyword)
 {
@@ -216,7 +215,14 @@ void JournalManager::editEntry(int index)
     {
         saveData(CONSTS::DEFAULT_DATA_FILE);
     }
+    std::cin.ignore();
     display.pressEnterToContinue();
+}
+std::string JournalManager::getMonthName(int month) const
+{
+    std::chrono::month m{static_cast<unsigned>(month)};
+
+    return std::format("{:%B}", m);
 }
 void JournalManager::showStatistics() const
 {
@@ -234,29 +240,54 @@ void JournalManager::showStatistics() const
     std::cout << "  With code: " << withCode << "\n";
     std::cout << "  Text only: " << (entries.size() - withCode) << "\n\n";
 
-    auto [oldest, newest] = std::minmax_element(entries.begin(), entries.end(),
-                                                [](const auto &a, const auto &b)
-                                                { return a.getDate() < b.getDate(); });
-
-    std::cout << "Date Range: " << oldest->getDate()
-              << " to " << newest->getDate() << "\n\n";
-
-    std::map<std::string, int> monthCounts;
+    std::vector<const JournalEntry *> validEntries;
     for (const auto &entry : entries)
     {
-        monthCounts[entry.getDate().substr(0, 7)]++;
+        if (!entry.getDate().empty() && entry.getDate().size() >= 7)
+        {
+            validEntries.push_back(&entry);
+        }
     }
 
-    std::cout << "Entries by Month:\n";
-    for (const auto &[month, count] : monthCounts)
+    // Check if we have valid dates
+    if (validEntries.empty())
     {
-        std::cout << "  " << month << ": ";
+        std::cout << "No entries with valid dates.\n";
+        display.pressEnterToContinue();
+        return;
+    }
+
+    // Date range (only from valid entries)
+    auto [oldest, newest] = std::minmax_element(
+        validEntries.begin(), validEntries.end(),
+        [](const auto *a, const auto *b)
+        { return a->getDate() < b->getDate(); });
+
+    std::cout << "Date Range: " << (*oldest)->getDate()
+              << " to " << (*newest)->getDate() << "\n\n";
+
+    std::map<std::string, int> monthCounts;
+    for (const auto *entry : validEntries)
+    {
+        std::string yearMonth = entry->getDate().substr(0, 7); // Safe now!
+        monthCounts[yearMonth]++;
+    }
+    std::cout << "Entries by Month:\n";
+    for (const auto &[yearMonth, count] : monthCounts)
+    {
+        std::string year = yearMonth.substr(0, 4);
+        std::string monthNum = yearMonth.substr(5, 2);
+
+        std::string monthName = getMonthName(std::stoi(monthNum));
+
+        std::cout << "  " << monthName << " " << year << ": ";
+
         for (int i = 0; i < count; ++i)
+        {
             std::cout << "█";
+        }
         std::cout << " (" << count << ")\n";
     }
-
-    display.pressEnterToContinue();
 }
 void JournalManager::exportMarkdown(const std::string &filename)
 {
@@ -267,6 +298,7 @@ void JournalManager::exportMarkdown(const std::string &filename)
     }
     if (storage.exportToMarkdown(entries, filename))
     {
+        std::cin.ignore();
         display.pressEnterToContinue();
     }
 }
@@ -274,6 +306,20 @@ void JournalManager::importMarkdown(const std::string &filename)
 {
     if (storage.importFromMarkdown(entries, filename))
     {
+        std::cin.ignore();
         display.pressEnterToContinue();
     }
+}
+bool JournalManager::isEmpty() const
+{
+    if (!entries.empty())
+    {
+        return false;
+    }
+    std::cout << "There is no entries yet, would you like to add one?\n";
+    return true;
+}
+size_t JournalManager::getEntryCount() const
+{
+    return entries.size();
 }

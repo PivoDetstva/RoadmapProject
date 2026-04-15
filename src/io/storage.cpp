@@ -2,12 +2,11 @@
 
 void Storage::saveToFile(const std::vector<JournalEntry> &dataToSave, const std::string &filename)
 {
-    std::string tempFilename(filename);
-    tempFilename = filename + ".tmp";
+    std::string tempFilename = filename + ".tmp";
     std::ofstream file(tempFilename);
     if (!file.is_open())
     {
-        std::cerr << "Error: save file wasn't opened \n";
+        std::cerr << COLOR::RED << "✗ Error: save file wasn't opened" << COLOR::RESET << "\n";
         return;
     }
     for (const auto &entry : dataToSave)
@@ -22,7 +21,7 @@ void Storage::saveToFile(const std::vector<JournalEntry> &dataToSave, const std:
     std::filesystem::rename(tempFilename, filename, ec);
     if (ec)
     {
-        std::cerr << "Error renaming file " << ec.message() << std::endl;
+        std::cerr << COLOR::RED << "✗Error renaming file " << ec.message() << COLOR::RESET << "\n";
         return;
     }
 }
@@ -30,10 +29,9 @@ std::vector<JournalEntry> Storage::loadFromFile(const std::string &filename)
 {
     std::ifstream loadfile(filename);
     std::vector<JournalEntry> loadedEntries;
-    std::cout << "loading\n";
     if (!loadfile.is_open())
     {
-        std::cerr << "Error: load file wasn't opened\n";
+        std::cerr << COLOR::RED << "✗Error: load file wasn't opened" << COLOR::RESET << "\n";
         return loadedEntries;
     }
     std::string line;
@@ -108,10 +106,14 @@ std::string Storage::escapeMarkdown(const std::string &text)
 bool Storage::exportToMarkdown(const std::vector<JournalEntry> &entries,
                                const std::string &outputFile)
 {
-    std::ofstream mdFile(outputFile);
+    std::filesystem::create_directories("exports");
+
+    std::filesystem::path fullPath = std::filesystem::path("exports") / outputFile;
+
+    std::ofstream mdFile(fullPath);
     if (!mdFile.is_open())
     {
-        std::cerr << "Error to open export file\n";
+        std::cerr << COLOR::RED << "Error to open export file" << COLOR::RESET << "\n";
         return false;
     }
 
@@ -184,7 +186,7 @@ bool Storage::exportToMarkdown(const std::vector<JournalEntry> &entries,
     mdFile.close();
 
     std::cout << COLOR::GREEN << "\n✓Exported " << COLOR::RESET << entries.size()
-              << COLOR::GREEN << " entries to " << COLOR::RESET << outputFile << "\n";
+              << COLOR::GREEN << " entries to " << COLOR::RESET << fullPath << "\n";
 
     return true;
 }
@@ -235,6 +237,10 @@ bool Storage::importFromMarkdown(std::vector<JournalEntry> &entries, const std::
         if (line.find("**Date:**") == 0)
         {
             currentDate = line.substr(10);
+            if (currentDate.empty())
+            {
+                currentDate = "Unknown";
+            }
             continue;
         }
         if (line.find("**FIle with code:**"))

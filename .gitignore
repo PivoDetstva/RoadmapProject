@@ -1,7 +1,12 @@
 build/
+cmake-build-*/
 .vscode/
-data.txt
+data.dat
 data.tmp
 *.txt.tmp
+.vscode/
+.idea/
 todo
 *.md
+.DS_Store
+googletest

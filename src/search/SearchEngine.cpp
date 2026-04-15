@@ -24,12 +24,12 @@ void Finder::searchContent(const std::string &keyword, std::vector<JournalEntry>
                                });
         if (it != title.end() || it2 != text.end())
         {
-            std::cout << "Found: " << entry.getDate() << " | " << entry.getTitle() << "\n";
+            std::cout << COLOR::GREEN << "✓ Found: " << entry.getDate() << " | " << entry.getTitle() << COLOR::RESET << "\n";
             found = true;
         }
     }
     if (!found)
-        std::cout << "Nothing found.\n";
+        std::cout << COLOR::RED << "✗Nothing found." << COLOR::RESET << "\n";
 }
 void Finder::searchDate(std::string_view queryDate, std::vector<JournalEntry> &entries) const
 {
@@ -40,9 +40,9 @@ void Finder::searchDate(std::string_view queryDate, std::vector<JournalEntry> &e
         {
             std::cout << entry.getDate() << " | " << entry.getTitle() << std::endl;
             found = true;
-            std::cout << "Entry found\n";
+            std::cout << COLOR::GREEN << "✓ Entry found" << COLOR::RESET << "\n";
         }
     }
     if (!found)
-        std::cout << "Not found\n";
-}
+        std::cout << COLOR::RED << "Not found" << COLOR::RESET << "\n";
+} // I believe it's better to make into a template, into one complex method using stl.

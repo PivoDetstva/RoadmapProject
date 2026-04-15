@@ -46,4 +46,7 @@ public:
     void showStatistics() const;
     void exportMarkdown(const std::string &filename);
     void importMarkdown(const std::string &filename);
+    bool isEmpty() const;
+    size_t getEntryCount() const;
+    std::string getMonthName(int month) const;
 };

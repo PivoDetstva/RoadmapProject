@@ -32,20 +32,20 @@ bool Validator::isSafePath(std::string_view pathStr) const
 
         if (!std::filesystem::exists(filePath))
         {
-            std::cerr << "Error: File does not exist\n";
+            std::cerr << COLOR::RED << "Error: File does not exist" << COLOR::RESET << "\n";
             return false;
         }
 
         if (!std::filesystem::is_regular_file(filePath))
         {
-            std::cerr << "Error: Not a regular file\n";
+            std::cerr << COLOR::RED << "Error: Not a regular file" << COLOR::RESET << "\n";
             return false;
         }
 
         std::string ext = filePath.extension().string();
         if (ext != ".cpp" && ext != ".h" && ext != ".txt" && ext != ".md")
         {
-            std::cerr << "Error: Unsupported file type\n";
+            std::cerr << COLOR::RED << "Error: Unsupported file type" << COLOR::RESET << "\n";
             return false;
         } // maybe later extend the variety of acceptable formats, like bash or else
 
@@ -55,7 +55,15 @@ bool Validator::isSafePath(std::string_view pathStr) const
     }
     catch (const std::filesystem::filesystem_error &e)
     {
-        std::cerr << "Error: Filesystem error - " << e.what() << "\n";
+        std::cerr << COLOR::RED << "Error: Filesystem error - " << e.what() << COLOR::RESET << "\n";
         return false;
     }
+}
+std::string Validator::defaultExportName()
+{
+    auto now = std::chrono::system_clock::now();
+    auto time = std::chrono::system_clock::to_time_t(now);
+    std::ostringstream oss;
+    oss << std::put_time(std::localtime(&time), "journal-%Y-%m-%d.md");
+    return oss.str();
 }

@@ -1,0 +1,2 @@
+That's the folder where all exported markdown files lies
+This folder is empty on github because .md files are ignored by .gitignore

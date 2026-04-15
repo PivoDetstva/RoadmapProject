@@ -10,16 +10,17 @@
 
 enum enums
 {
-    add = 1,
-    show = 2,
-    gofind = 3,
-    dont = 4,
-    preview = 5,
-    edit = 6,
-    stats = 7,
-    exportmd = 8,
-    importmd = 9,
-    sexit = 0
+    ADD = 1,
+    LIST = 2,
+    FIND = 3,
+    DELETE = 4,
+    PREVIEW = 5,
+    EDIT = 6,
+    STATISTICS = 7,
+    EXPORT = 8,
+    IMPORT = 9,
+    HELP = 10,
+    EXIT = 0
 };
 
 class Menu
@@ -42,4 +43,5 @@ public:
     void handleEdit();
     void handleExportMarkdown();
     void handleImportMarkdown();
+    void showHelp();
 };

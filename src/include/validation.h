@@ -4,6 +4,7 @@
 #include <chrono>
 #include <sstream>
 #include <filesystem>
+#include "Constants.h"
 #pragma once
 class Validator
 {
@@ -13,5 +14,6 @@ public:
     bool isValidPath(std::string_view pathStr);
     std::string trim(const std::string &s);
     bool isSafePath(std::string_view pathStr) const;
+    std::string defaultExportName();
     // escapeforshell
 };

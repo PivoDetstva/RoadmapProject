@@ -18,7 +18,7 @@ int InputHandle::getInt(std::string prompt)
         {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cerr << "Error! It's not a number\n";
+            std::cerr << COLOR::RED << "✗Error! It's not a number" << COLOR::RESET << "\n";
             continue;
         }
         return input;
@@ -35,7 +35,7 @@ char InputHandle::getChar(std::string prompt) const
         {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cerr << "Error! \n";
+            std::cerr << COLOR::RED << "✗ Error! " << COLOR::RESET << "\n";
             continue;
         }
         return input;
@@ -48,11 +48,12 @@ std::string InputHandle::getString(std::string prompt)
         std::cout << prompt << std::endl;
         std::string input;
         std::cin >> input;
+
         if (std::cin.fail())
         {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cerr << "Error! \n";
+            std::cerr << COLOR::RED << "✗ Error!" << "\n";
             continue;
         }
         return input;
@@ -70,7 +71,7 @@ SortType InputHandle::getSortType()
         {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cerr << "Error! Sorting is not chosen correctly\n";
+            std::cerr << COLOR::RED << "✗ Error! Sorting is not chosen correctly" << COLOR::RESET << "\n";
             continue;
         }
         inputHandle.toLower(input);
@@ -84,7 +85,7 @@ SortType InputHandle::getSortType()
         }
         else
         {
-            std::cout << "Wrong formation of sorting\n";
+            std::cerr << COLOR::RED << "✗ Wrong formation of sorting" << COLOR::RESET << "\n";
             continue;
         }
         return type;

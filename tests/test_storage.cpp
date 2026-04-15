@@ -34,3 +34,24 @@ TEST(StorageTest, ExportContainsTitle)
 
     std::filesystem::remove(testFile);
 }
+TEST(StorageTest, ImportFromMarkdownWorks)
+{
+    Storage storage;
+
+    std::ofstream mdFile("test_import.md");
+    mdFile << "# My Programming Journal\n\n";
+    mdFile << "## Test Entry\n\n";
+    mdFile << "**Date:** 2024-01-01\n";
+    mdFile << "**ID:** 1\n\n";
+    mdFile << "Test content\n\n";
+    mdFile.close();
+
+    std::vector<JournalEntry> entries;
+    bool success = storage.importFromMarkdown(entries, "test_import.md");
+
+    EXPECT_TRUE(success);
+    EXPECT_EQ(entries.size(), 1);
+    EXPECT_EQ(entries[0].getTitle(), "Test Entry");
+
+    std::filesystem::remove("test_import.md");
+}

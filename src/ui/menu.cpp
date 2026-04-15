@@ -13,8 +13,10 @@ void Menu::displayMainMenu()
               << "7. Show brief statistics\n"
               << "8. Export your journal\n"
               << "9. Import journal from markdown file\n"
+              << "Choose 10 for more detailed guide."
               << "If you want to exit the app press '0'\n"
               << "===============================\n"
+
               << "Choice: ";
 }
 void Menu::handleAddEntry()
@@ -27,17 +29,28 @@ void Menu::handleAddEntry()
     std::cout << "Make an entry! Write date, arguments and path, to divide it use commas.\n";
     while (true)
     {
-        std::cout << "Let's start with a date, use YYYY-MM-DD: ";
+        std::cout << "Let's start with a date, write a date, or just 'today', use YYYY-MM-DD: ";
         std::getline(std::cin, date);
         date = validator.trim(date);
-        if (validator.isValidDate(date) == false)
+        if (date == "today")
         {
-            std::cout << COLOR::RED << "✗Invalid date format! Use YYYY-MM-DD" << COLOR::RESET << "\n";
+            auto now = std::chrono::system_clock::now();
+            auto localTime = std::chrono::current_zone()->to_local(now);
+            date = std::format("{:%Y-%m-%d}", localTime);
         }
-        else
+        if (date.empty())
+        {
+            std::cerr << COLOR::RED << "Date cannot be empty!" << COLOR::RESET << "\n";
+            continue;
+        }
+        if (validator.isValidDate(date) == true)
         {
             std::cout << COLOR::GREEN << "Date has been approved!" << COLOR::RESET << "\n";
             break;
+        }
+        else
+        {
+            std::cout << COLOR::RED << "✗Invalid date format! Use YYYY-MM-DD" << COLOR::RESET << "\n";
         }
     }
     while (true)
@@ -94,14 +107,16 @@ void Menu::handleAddEntry()
     JournalEntry newEntry(id, date, title, args, path);
     manager.addEntry(newEntry);
 
-    std::cout << COLOR::BLUE << "Added new entry!" << COLOR::RESET << "\n";
+    std::cout << COLOR::GREEN << "✓Added new entry!" << COLOR::RESET << "\n";
     display.pressEnterToContinue();
 }
 void Menu::handleViewEntries()
 {
-
-    if (manager.openCheck())
+    if (manager.isEmpty())
     {
+        std::cout << "\nYou can add an entry manually with 1 menu option or import pre-made file with option 9\n";
+        std::cin.ignore();
+        display.pressEnterToContinue();
         return;
     }
     manager.printAll(inputHandler.getSortType());
@@ -109,7 +124,7 @@ void Menu::handleViewEntries()
 
     if (index == 0)
     {
-        std::cout << "Coming back to menu...\n";
+        std::cout << "Coming back to menu...";
         std::cin.ignore();
         display.pressEnterToContinue();
         return;
@@ -122,16 +137,13 @@ void Menu::handleViewEntries()
                   << COLOR::RESET;
         return;
     }
-    manager.openEntry(selected->getID()); // maybe make it a cycle? So user would read entry and menu not pop up
+    manager.openEntry(selected->getID());
 }
 void Menu::handleSearch()
 {
-    // todo: when word is mistaken or something, let user make choice again
-    //[implement it into while cycle]
     if (manager.openCheck())
     {
-        std::cout << COLOR::RED << "✗didn't passed through opencheck\n"
-                  << COLOR::RESET;
+        std::cin.ignore();
         return;
     }
     std::string input;
@@ -141,17 +153,19 @@ void Menu::handleSearch()
     std::getline(std::cin, input);
     input = validator.trim(input);
     for (char ch : input)
-    { // maybe add "search again?" thing with cycle
+    { // maybe add "search again?" thing with cycle. Do in v1.2 with refactor.
         if (ch >= 48 && ch <= 57 || ch == 45)
         {
-            std::cout << "Found those entries by " << input << "request\n";
+
             manager.searchByDate(input);
+            std::cout << "Found those entries by " << input << " request\n";
             return;
         }
         else
         {
-            std::cout << "Found those entries by " << input << "request\n";
+
             manager.searchByContent(input);
+            std::cout << "Found those entries by " << input << " request\n";
             return;
         }
     }
@@ -160,6 +174,7 @@ void Menu::handleDelete()
 {
     if (manager.openCheck())
     {
+        std::cin.ignore();
         return;
     }
 
@@ -169,15 +184,31 @@ void Menu::handleDelete()
     JournalEntry *selected = manager.getEntryByViewIndex(index);
     if (selected == nullptr)
     {
-        std::cout << "Invalid index!\n";
+        std::cerr << COLOR::RED << "✗Invalid index!" << COLOR::RESET << "\n";
         return;
     }
-    manager.deleteEntry(selected->getID());
+    std::cout << "\nDelete entry: \"" << selected->getTitle() << "\"?\n";
+
+    std::string confirmation = inputHandler.getString("Type 'yes' to confirm: ");
+
+    if (confirmation == "yes" || confirmation == "y" || confirmation == "ye")
+    {
+        manager.deleteEntry(selected->getID());
+        std::cout << COLOR::GREEN << "✓ Entry deleted\n"
+                  << COLOR::RESET;
+    }
+    else
+    {
+        std::cout << "Deletion cancelled\n";
+    }
+    std::cin.ignore();
+    display.pressEnterToContinue();
 }
 void Menu::handlePreviewCode()
 {
     if (manager.openCheck())
     {
+        std::cin.ignore();
         return;
     }
     if (!manager.codeCheck())
@@ -191,10 +222,12 @@ void Menu::handlePreviewCode()
     JournalEntry *selected = manager.getEntryByCodeViewIndex(index);
     if (selected == nullptr)
     {
-        std::cout << "Invalid index! selected\n";
+        std::cerr << COLOR::RED << "✗Invalid index!" << COLOR::RESET << "\n";
         return;
     }
     manager.previewCode(selected->getID());
+    std::cin.ignore();
+    display.pressEnterToContinue();
 }
 void Menu::handleEdit()
 {
@@ -205,7 +238,7 @@ void Menu::handleEdit()
 
     if (selected == nullptr)
     {
-        std::cout << "Invalid index!\n";
+        std::cerr << COLOR::RED << "✗Invalid index!" << COLOR::RESET << "\n";
         return;
     }
     try
@@ -214,7 +247,7 @@ void Menu::handleEdit()
     }
     catch (const std::out_of_range &e)
     {
-        std::cerr << "Error: " << e.what() << "\n";
+        std::cerr << COLOR::RED << "Error: " << e.what() << COLOR::RESET << "\n";
     }
 }
 void Menu::handleExportMarkdown()
@@ -224,9 +257,10 @@ void Menu::handleExportMarkdown()
         return;
     }
     std::string filename = inputHandler.getString("Export filename (make a name, e.g., journal.md): ");
-    if (filename.empty())
+    validator.trim(filename);
+    if (filename.empty()) // should add trim here to parse it with spaces
     {
-        filename = CONSTS::STANDART_MARKDOWN_FILE;
+        filename = validator.defaultExportName();
     }
 
     if (filename.find(".md") == std::string::npos)
@@ -238,6 +272,7 @@ void Menu::handleExportMarkdown()
 }
 void Menu::handleImportMarkdown()
 {
+    // make it to chose from /export directory.
     std::string filename = inputHandler.getString("Import from File: ");
 
     if (!std::filesystem::exists(filename))
@@ -247,4 +282,19 @@ void Menu::handleImportMarkdown()
     }
 
     manager.importMarkdown(filename);
+}
+void Menu::showHelp()
+{
+    std::cout << "\n=== HELP ===\n\n";
+    std::cout << "This is a personal programming journal.\n\n";
+    std::cout << "Tips:\n";
+    std::cout << "- Add entries as you learn new concepts\n";
+    std::cout << "- Attach code files to track your progress\n";
+    std::cout << "- Export to Markdown for backup or sharing\n";
+    std::cout << "- Use search to find past solutions\n\n";
+    std::cout << "Data is stored in: data/data.dat\n";
+    std::cout << "Exports are saved in: exports/\n\n";
+
+    std::cin.ignore();
+    display.pressEnterToContinue();
 }

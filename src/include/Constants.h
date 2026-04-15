@@ -3,9 +3,10 @@
 
 namespace CONSTS
 {
-    inline const std::string &DEFAULT_DATA_FILE = "data.txt";
+    inline const std::string DEFAULT_DATA_FILE = "data/data.dat";
+    inline const std::string EXPORTS_FOLDER = "exports/";
     inline const std::string TEMP_FILE_EXTENSION = ".tmp";
-    inline const std::string STANDART_MARKDOWN_FILE = "export.md";
+    inline const std::string DATA_FOLDER = "data/";
 
     inline const char DEFAULT_XOR_KEY = 'K';
 

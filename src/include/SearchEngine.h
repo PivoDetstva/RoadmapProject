@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "entry.h"
 #include "InputClass.h"
 #pragma once

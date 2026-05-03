@@ -1,12 +1,12 @@
-#include "entry.h"
-#include "manager.h"
-#include "Constants.h"
-#include "storage.h"
-#include "InputClass.h"
-#include "Display.h"
-#include "validation.h"
-#include "manager.h"
 #pragma once
+#include "entry.hpp"
+#include "manager.hpp"
+#include "Constants.hpp"
+#include "storage.hpp"
+#include "InputClass.hpp"
+#include "Display.hpp"
+#include "validation.hpp"
+#include "manager.hpp"
 
 enum enums
 {

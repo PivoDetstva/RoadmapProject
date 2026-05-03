@@ -1,9 +1,10 @@
+#pragma once
 #include <string>
 #include <vector>
 #include <algorithm>
-#include "entry.h"
-#include "InputClass.h"
-#pragma once
+#include "entry.hpp"
+#include "InputClass.hpp"
+
 class Finder
 {
 private:

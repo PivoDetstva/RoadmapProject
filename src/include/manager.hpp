@@ -1,17 +1,16 @@
+#pragma once
 #include <iostream>
 #include <string>
-#include <fstream>
 #include <vector>
 #include <algorithm>
 #include <map>
 #include <string_view>
-#include "validation.h"
-#include "entry.h"
-#include "storage.h"
-#include "InputClass.h"
-#include "Display.h"
-#include "SearchEngine.h"
-#pragma once
+#include "validation.hpp"
+#include "entry.hpp"
+#include "storage.hpp"
+#include "InputClass.hpp"
+#include "Display.hpp"
+#include "SearchEngine.hpp"
 
 class JournalManager
 {

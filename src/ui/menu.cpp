@@ -1,4 +1,4 @@
-#include "RoadmapApp.h"
+#include "RoadmapApp.hpp"
 
 void Menu::displayMainMenu()
 {
@@ -152,22 +152,19 @@ void Menu::handleSearch()
 
     std::getline(std::cin, input);
     input = validator.trim(input);
-    for (char ch : input)
-    { // maybe add "search again?" thing with cycle. Do in v1.2 with refactor.
-        if (ch >= 48 && ch <= 57 || ch == 45)
-        {
+    if (input.empty())
+        return;
+    bool looksLikeDate = std::all_of(input.begin(), input.end(),
+                                     [](char c)
+                                     { return std::isdigit(c) || c == '-'; });
 
-            manager.searchByDate(input);
-            std::cout << "Found those entries by " << input << " request\n";
-            return;
-        }
-        else
-        {
-
-            manager.searchByContent(input);
-            std::cout << "Found those entries by " << input << " request\n";
-            return;
-        }
+    if (looksLikeDate)
+    {
+        manager.searchByDate(input);
+    }
+    else
+    {
+        manager.searchByContent(input);
     }
 }
 void Menu::handleDelete()
@@ -257,7 +254,7 @@ void Menu::handleExportMarkdown()
         return;
     }
     std::string filename = inputHandler.getString("Export filename (make a name, e.g., journal.md): ");
-    validator.trim(filename);
+    filename = validator.trim(filename);
     if (filename.empty()) // should add trim here to parse it with spaces
     {
         filename = validator.defaultExportName();
@@ -287,6 +284,8 @@ void Menu::showHelp()
 {
     std::cout << "\n=== HELP ===\n\n";
     std::cout << "This is a personal programming journal.\n\n";
+    std::cout << "You can write a specific function of the app to know more details about!\n";
+    // in progress
     std::cout << "Tips:\n";
     std::cout << "- Add entries as you learn new concepts\n";
     std::cout << "- Attach code files to track your progress\n";

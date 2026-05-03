@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "storage.h"
+#include "storage.hpp"
 #include <filesystem>
 
 TEST(StorageTest, ExportCreatesFile)

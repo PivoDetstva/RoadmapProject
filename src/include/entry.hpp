@@ -1,9 +1,7 @@
+#pragma once
 #include <iostream>
 #include <string>
-#include <thread>
-#include <fstream>
 #include <sstream>
-#pragma once
 
 class JournalEntry
 {

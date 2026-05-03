@@ -1,4 +1,4 @@
-#include "InputClass.h"
+#include "InputClass.hpp"
 
 void InputHandle::toLower(std::string &s) const
 {
@@ -65,8 +65,7 @@ SortType InputHandle::getSortType()
     while (true)
     {
         SortType type;
-        InputHandle inputHandle;
-        std::string input = inputHandle.getString("How do you want to sort the list?(date/id)");
+        std::string input = getString("How do you want to sort the list?(date/id)");
         if (std::cin.fail())
         {
             std::cin.clear();
@@ -74,7 +73,7 @@ SortType InputHandle::getSortType()
             std::cerr << COLOR::RED << "✗ Error! Sorting is not chosen correctly" << COLOR::RESET << "\n";
             continue;
         }
-        inputHandle.toLower(input);
+        toLower(input);
         if (input == "date")
         {
             type = SortType::BY_DATE;

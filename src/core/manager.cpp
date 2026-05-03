@@ -1,6 +1,4 @@
-#include "manager.h"
-#include "storage.h"
-#include "Constants.h"
+#include "manager.hpp"
 void JournalManager::addEntry(const JournalEntry &entry)
 {
     entries.push_back(entry);
@@ -312,12 +310,7 @@ void JournalManager::importMarkdown(const std::string &filename)
 }
 bool JournalManager::isEmpty() const
 {
-    if (!entries.empty())
-    {
-        return false;
-    }
-    std::cout << "There is no entries yet, would you like to add one?\n";
-    return true;
+    return entries.empty();
 }
 size_t JournalManager::getEntryCount() const
 {

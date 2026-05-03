@@ -1,4 +1,4 @@
-#include "SearchEngine.h"
+#include "SearchEngine.hpp"
 
 void Finder::searchContent(const std::string &keyword, std::vector<JournalEntry> &entries)
 {

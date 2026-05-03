@@ -1,4 +1,4 @@
-#include "Display.h"
+#include "Display.hpp"
 void Display::pressEnterToContinue() const
 {
     if (std::cin.rdbuf()->in_avail() > 0)
@@ -84,7 +84,7 @@ void Display::openGuts(const std::vector<JournalEntry>::const_iterator &iterator
         {
             if (validator.isSafePath(entry.getPath()))
             {
-                std::string command = "xdg-open '" + escapeForShell(entry.getPath());
+                std::string command = "xdg-open " + escapeForShell(entry.getPath());
                 std::system(command.c_str());
             }
             else
@@ -102,7 +102,7 @@ void Display::openGuts(const std::vector<JournalEntry>::const_iterator &iterator
     pressEnterToContinue();
 }
 void Display::openCode(const std::vector<JournalEntry>::const_iterator &iterator) const
-{
+{ // move to storage
     std::string path = iterator->getPath();
 
     if (path.empty())

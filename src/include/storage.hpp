@@ -1,10 +1,12 @@
+#pragma once
 #include <string>
 #include <vector>
 #include <filesystem>
 #include <chrono>
-#include "entry.h"
-#include "Constants.h"
-#pragma once
+#include <fstream>
+#include "entry.hpp"
+#include "Constants.hpp"
+
 class Storage
 {
 private:

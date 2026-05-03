@@ -2,7 +2,7 @@
 
 > A modern CLI journal for tracking your programming journey
 
-![The Roadmap Menu](image.png)
+![The Roadmap Menu](docs/images/menu.png)
 
 
 ![C++20](https://img.shields.io/badge/C%2B%2B-20-blue)
@@ -141,7 +141,7 @@ docker run -it roadmap:v1.0
 - **Containerization:** Docker
 - **Version Control:** Git with submodules
 
-## Project is in v0.9.8 version, README is the most valuable change for now! 
+## Project is in v1.0. The release of the working build! But it's not even the 1/3 of the all work!
 Implemented Docker into project with a new functionalities. 
 
 Here should lie a future project roadmap!

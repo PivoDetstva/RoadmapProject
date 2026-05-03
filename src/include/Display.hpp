@@ -1,10 +1,11 @@
+#pragma once
 #include <vector>
 #include <algorithm>
-#include "entry.h"
-#include "InputClass.h"
-#include "validation.h"
-#include "Constants.h"
-#pragma once
+#include <fstream>
+#include "entry.hpp"
+#include "InputClass.hpp"
+#include "validation.hpp"
+#include "Constants.hpp"
 
 class Display
 {

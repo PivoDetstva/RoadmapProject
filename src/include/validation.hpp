@@ -1,11 +1,12 @@
+#pragma once
 #include <string>
 #include <iostream>
 #include <string_view>
 #include <chrono>
 #include <sstream>
 #include <filesystem>
-#include "Constants.h"
-#pragma once
+#include "Constants.hpp"
+
 class Validator
 {
 private:

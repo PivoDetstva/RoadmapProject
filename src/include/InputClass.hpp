@@ -1,9 +1,8 @@
+#pragma once
 #include <string>
 #include <iostream>
 #include <limits>
-#include "Constants.h"
-
-#pragma once
+#include "Constants.hpp"
 
 enum class SortType
 {

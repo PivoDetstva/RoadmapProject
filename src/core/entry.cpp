@@ -1,4 +1,4 @@
-#include "entry.h"
+#include "entry.hpp"
 
 std::string JournalEntry::serialize() const
 {

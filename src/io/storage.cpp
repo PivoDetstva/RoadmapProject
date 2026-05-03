@@ -1,4 +1,4 @@
-#include "storage.h"
+#include "storage.hpp"
 
 void Storage::saveToFile(const std::vector<JournalEntry> &dataToSave, const std::string &filename)
 {
@@ -146,7 +146,7 @@ bool Storage::exportToMarkdown(const std::vector<JournalEntry> &entries,
         mdFile << "**ID** " << entry->getID() << " \n";
         if (entry->getPath() != CONSTS::NO_CODE_PATH)
         {
-            mdFile << "**File with code:** `" << entry->getPath() << "`  \n";
+            mdFile << "**File with code:**" << entry->getPath() << "`  \n";
             /*Ai recommendation, test later
                  mdFile << "**Attached Code:**\n\n";
 
@@ -217,7 +217,7 @@ bool Storage::importFromMarkdown(std::vector<JournalEntry> &entries, const std::
 
     while (std::getline(mdFile, line))
     {
-        if (line.find("#My Programming Journal") == 0 || line.find("---") == 0 || line.empty())
+        if (line.find("#My Programming Diary") == 0 || line.find("---") == 0 || line.empty())
         {
             continue;
         }
@@ -243,7 +243,7 @@ bool Storage::importFromMarkdown(std::vector<JournalEntry> &entries, const std::
             }
             continue;
         }
-        if (line.find("**FIle with code:**"))
+        if (line.find("**File with code:**") == 0)
         {
             auto start = line.find('`') + 1;
             auto end = line.rfind('`');

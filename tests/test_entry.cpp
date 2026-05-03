@@ -1,4 +1,4 @@
-#include "entry.h"
+#include "entry.hpp"
 #include <gtest/gtest.h>
 
 TEST(JournalEntryTest, ConstructorSetsValues)
